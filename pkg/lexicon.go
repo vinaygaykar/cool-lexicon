@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 type Word string
 
@@ -9,7 +9,7 @@ type Lexicon interface {
 
 	GetAllEndingWith(toSearch string) []Word
 
-	Add(word Word) bool
+	Add(word Word)
 
 	AddAll(words []Word)
 }
