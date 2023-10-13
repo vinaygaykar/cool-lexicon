@@ -9,19 +9,20 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vinaygaykar/cool-lexicon/internal"
+	"github.com/vinaygaykar/cool-lexicon/configs"
 	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
 var (
-	opExistsWord, opSearchStartWord, opSearchEndWord, opAddAllFile string
+	cfgFileLoc, opExistsWord, opSearchStartWord, opSearchEndWord, opAddAllFile string
 )
 
 func init() {
+	flag.StringVar(&cfgFileLoc, "cfg", "cool-lexicon-cfg.json", "Config file location")
 	flag.StringVar(&opExistsWord, "ex", "", "Check if the given word exist")
 	flag.StringVar(&opSearchStartWord, "ss", "", "Search the lexicon to find words that start with given substring")
 	flag.StringVar(&opSearchEndWord, "se", "", "Search the lexicon to find words that end with given substring")
-	flag.StringVar(&opAddAllFile, "aa", "", "Add words present in given file location to lexicon")
+	flag.StringVar(&opAddAllFile, "ad", "", "Add words present in given file location to lexicon")
 }
 
 func main() {
@@ -32,7 +33,10 @@ func main() {
 		return
 	}
 
-	lxc := internal.OpenLexicon()
+	lxc, err := configs.GetLexicon(cfgFileLoc)
+	if err != nil {
+		fmt.Printf("Error initilising the program. %s\n", err.Error())
+	}
 	defer lxc.Close()
 
 	operateExists(lxc)
@@ -43,6 +47,7 @@ func main() {
 
 func sanitizeInput() {
 	// remove any whitespaces
+	cfgFileLoc = strings.TrimSpace(cfgFileLoc)
 	opExistsWord = strings.TrimSpace(opExistsWord)
 	opSearchStartWord = strings.TrimSpace(opSearchStartWord)
 	opSearchEndWord = strings.TrimSpace(opSearchEndWord)
@@ -50,6 +55,18 @@ func sanitizeInput() {
 }
 
 func validateInput() error {
+	if len(cfgFileLoc) == 0 {
+		// config file location string must be present; default file location string is provided to `flag`
+		return errors.New("config file location not provided")
+	}
+
+	// config file location string is there but is the location valid
+	if _, err := os.Stat(cfgFileLoc); err != nil {
+		log.Printf("%s", cfgFileLoc)
+		fmt.Println("config file not present at the provided location")
+		return err
+	}
+
 	if len(opExistsWord) == 0 && len(opSearchStartWord) == 0 && len(opSearchEndWord) == 0 && len(opAddAllFile) == 0 {
 		flag.PrintDefaults()
 		return errors.New("no operation flag provided")
