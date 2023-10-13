@@ -1,4 +1,4 @@
-package internal
+package lexicon
 
 import (
 	"database/sql"
@@ -6,34 +6,14 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
-const DATABASE_NAME = "lexicons"
 const TABLE_NAME = "lexicon"
 
-const USERNAME = ""
-const PASSWORD = ""
-const HOST = ""
-const PORT = 0
-
-func OpenLexicon() lexicon.Lexicon {
+func Open(db *sql.DB) *LexiconWithDB {
 	return &LexiconWithDB{
-		db: connectToDB(HOST, USERNAME, PASSWORD, PORT),
+		db: db,
 	}
-}
-
-func connectToDB(host, username, password string, port int) *sql.DB {
-	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, host, port, DATABASE_NAME)
-
-	db, err := sql.Open("mysql", url)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	log.Println("DB connected")
-
-	return db
 }
 
 type LexiconWithDB struct {
