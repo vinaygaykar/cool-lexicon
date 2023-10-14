@@ -25,5 +25,5 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         goversion: "1.20"
-        project_path: "./cmdmkdir "
+        project_path: "./cmd"
         extra_files: LICENSE README.md
