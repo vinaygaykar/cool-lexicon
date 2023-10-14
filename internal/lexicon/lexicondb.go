@@ -49,9 +49,8 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 
 	for res.Next() {
 		var word string
-		err2 := res.Scan(&word)
-		if err2 != nil {
-			return []string {}, err2
+		if err = res.Scan(&word); err != nil {
+			return []string {}, err
 		}
 
 		words = append(words, word)
@@ -78,8 +77,8 @@ func (lxc *LexiconWithDB) AddAll(words []string) error {
 		return err
 	} else {
 		defer stmt.Close()
-		if _, err2 := stmt.Exec(vals...); err2 != nil {
-			return err2
+		if _, err = stmt.Exec(vals...); err != nil {
+			return err
 		}
 	}
 

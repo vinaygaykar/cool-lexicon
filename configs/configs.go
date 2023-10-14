@@ -68,23 +68,31 @@ func getConfigs(configFileLoc string) *Configs {
 func performSetupChecks(username, password, host string, port int, database string) {
 	log.Printf("Connecting to MySQL @ %s:%d", host, port)
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/", username, password, host, port))
-	if err == nil {
+	if err != nil {
 		log.Panic(err.Error())
 	}
 	defer db.Close()
 
 	log.Printf("Creating database %s if it does not already exists\n", database)
-	if _, err2 := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", database)); err2 == nil {
-		log.Panic(err2.Error())
+	if _, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", database)); err != nil {
+		log.Panic(err.Error())
 	}
+	db.Close()
 
+	log.Printf("Connected to %s:%d/%s\n", host, port, database)
+	db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, host, port, database))
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer db.Close()
+	
 	log.Println("Creating table lexicon if it does not already exists")
-	if _, err2 := db.Exec(fmt.Sprintf("CREATE TABLE %s.lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL)", database)); err2 == nil {
-		log.Panic(err2.Error())
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL)", database)); err != nil {
+		log.Panic(err.Error())
 	}
 
 	log.Println("DB checks comlpeted")
-	log.Printf("All checks completed\n")
+	log.Println("All checks completed")
 }
 
 func connectToMySQL(username, password, host string, port int, database string) *sql.DB {
