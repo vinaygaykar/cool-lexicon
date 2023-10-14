@@ -25,5 +25,5 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         goversion: "1.20"
-        project_path: "./cmd/cool-lexicon.go"
+        project_path: "./cmdmkdir "
         extra_files: LICENSE README.md
