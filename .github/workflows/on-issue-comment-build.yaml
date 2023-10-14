@@ -10,10 +10,11 @@ on:
 
 jobs:
   build:
-    if: contains(github.event.comment.body, '/build')
+    if: ${{ contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/build') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v4
