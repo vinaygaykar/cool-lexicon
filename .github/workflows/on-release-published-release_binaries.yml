@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  releases-matrix:
+  release:
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -1,15 +1,16 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Build
+name: PR comment
 
 on:
-    issue_comment:
-      types: 
-        - created
+  issue_comment:
+    types:
+      - created
 
 jobs:
   build:
+    if: ${{ (github.event.issue.pull_request) && (contains(github.event.comment.html_url, '/build')) }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
