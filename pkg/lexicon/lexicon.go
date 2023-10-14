@@ -1,13 +1,13 @@
 package lexicon
 
 type Lexicon interface {
-	CheckIfExists(word string) bool
+	CheckIfExists(word string) (bool, error)
 
-	GetAllStartingWith(toSearch string) []string
+	GetAllStartingWith(toSearch string) ([]string, error)
+	
+	GetAllEndingWith(toSearch string) ([]string, error)
 
-	GetAllEndingWith(toSearch string) []string
-
-	AddAll(words []string)
+	AddAll(words []string) error
 
 	Close()
 }
