@@ -1,10 +1,12 @@
+name: Release Binary
+
 on: 
   release:
-    types: [published]
+    types: 
+      - published
 
 jobs:
   releases-matrix:
-    name: Release Binary
     runs-on: ubuntu-latest
     strategy:
       matrix:
