@@ -3,7 +3,7 @@
 
 # Still WIP
 
-name: PR merged (build)
+name: PR (merged)
 
 on:
   push: 
