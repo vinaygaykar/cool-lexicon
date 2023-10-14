@@ -1,1 +1,1 @@
-# cool-lexicon-lookup
+# cool-lexicon
