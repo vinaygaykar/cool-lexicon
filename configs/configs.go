@@ -1,3 +1,4 @@
+// Package configs provides factory methods to configure and get instance of a Lexicon object.
 package configs
 
 import (
@@ -11,18 +12,41 @@ import (
 	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
+// A Config holds config values required for this project.
+// values are populated from `cool-lexicon-cfg.json` config file as default, unless another file
+// is explicitly provided.
+// A zero value config is useless and will be reported invalid during validation phase.
 type Configs struct {
-	Dbtype   string `json:"type"`
-	Host     string `json:"host"`
+
+	// Dbtype mentions type of DB server used. Optional as currently only MySQL is supported.
+	Dbtype string `json:"type"`
+
+	// Host address of the database
+	Host string `json:"host"`
+
+	// Username credentials to use for database login
 	Username string `json:"username"`
+
+	// Password credentials to use for database login
 	Password string `json:"password"`
-	Port     int    `json:"port"`
+
+	// Port value of the database connection
+	Port int `json:"port"`
+
+	// Database to connect to
 	Database string `json:"database"`
 }
 
+// GetLexicon returns an instance of Lexicon object configured using properties as described in configFileLoc.
+// For now instance of LexiconWithDB is provided as an instance of Lexicon, which uses MySQL as data storage solution.
+// If configFileLoc is empty or invalid then GetLexicon will panic.
+// If checkSetup is true then system checks are performed to make sure everything is setup as expected. 
+// If system is setup is incorrectly then it will "try" to correct the setup or end up panicking. This field
+// is useful during troubleshooting and should only be set once during first run, on later runs if this value 
+// is set it won't cause any harm but might slow down the operations.
 func GetLexicon(configFileLoc string, checkSetup bool) lexicon.Lexicon {
 	if len(configFileLoc) == 0 {
-		configFileLoc = "cool-lexicon-cfg.json"
+		log.Panicln("config file not provided")
 	}
 
 	cfg := getConfigs(configFileLoc)
@@ -85,7 +109,7 @@ func performSetupChecks(username, password, host string, port int, database stri
 		log.Panic(err.Error())
 	}
 	defer db.Close()
-	
+
 	log.Println("Creating table lexicon if it does not already exists")
 	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL)", database)); err != nil {
 		log.Panic(err.Error())

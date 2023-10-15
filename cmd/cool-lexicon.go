@@ -78,8 +78,7 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 		return
 	}
 
-	exists, err := lxc.CheckIfExists(string(opExistsWord))
-	if err != nil {
+	if exists, err := lxc.CheckIfExists(string(opExistsWord)); err != nil {
 		log.Fatalf("could not perform 'exists' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("exists (%s) : %t\n", opExistsWord, exists)
@@ -91,8 +90,7 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	words, err := lxc.GetAllStartingWith(opSearchStartWord)
-	if err != nil {
+	if words, err := lxc.GetAllStartingWith(opSearchStartWord); err != nil {
 		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("starts with (%s) : %v\n", opSearchStartWord, words)
@@ -104,8 +102,7 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	words, err := lxc.GetAllEndingWith(opSearchEndWord)
-	if err != nil {
+	if words, err := lxc.GetAllEndingWith(opSearchEndWord); err != nil {
 		log.Fatalf("could not perform 'ends with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("ends with (%s) : %v\n", opSearchEndWord, words)
@@ -133,15 +130,14 @@ func tryOperateAddAll(lxc lexicon.Lexicon) {
 		words = append(words, string(strings.TrimSpace(scanner.Text())))
 	}
 
-	if err2 := scanner.Err(); err2 != nil {
-		log.Fatalf("could not read contents of the file to add words, error: %s\n", err2.Error())
+	if err = scanner.Err(); err != nil {
+		log.Fatalf("could not read contents of the file to add words, error: %s\n", err.Error())
 		return
 	}
 	
 	// add `words` to lexicon
-	err3 := lxc.AddAll(words)
-	if err3 != nil {
-		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", opAddAllFile, err3.Error())
+	if err = lxc.AddAll(words); err != nil {
+		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", opAddAllFile, err.Error())
 	} else {
 		fmt.Printf("added words from the file (%s)\n", opAddAllFile)
 	}
