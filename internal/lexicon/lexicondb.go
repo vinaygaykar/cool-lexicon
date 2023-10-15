@@ -2,8 +2,8 @@ package lexicon
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,56 +20,48 @@ type LexiconWithDB struct {
 	db *sql.DB
 }
 
-func (lxc *LexiconWithDB) CheckIfExists(word string) bool {
+func (lxc *LexiconWithDB) CheckIfExists(word string) (bool, error) {
 	exists := false
 	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
 
 	row := lxc.db.QueryRow(query, word)
 	err := row.Scan(&exists)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return exists
+	return exists, err
 }
 
-func (lxc *LexiconWithDB) GetAllStartingWith(toSearch string) []string {
+func (lxc *LexiconWithDB) GetAllStartingWith(toSearch string) ([]string, error) {
 	return lxc.searchSubString(toSearch + "%")
 }
 
-func (lxc *LexiconWithDB) GetAllEndingWith(toSearch string) []string {
+func (lxc *LexiconWithDB) GetAllEndingWith(toSearch string) ([]string, error) {
 	return lxc.searchSubString("%" + toSearch)
 }
 
-func (lxc *LexiconWithDB) searchSubString(toSearch string) []string {
+func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 	words := make([]string, 0)
 	query := fmt.Sprintf("SELECT l.word FROM %s l WHERE l.word LIKE ?", TABLE_NAME)
 
-	log.Println(query)
-
 	res, err := lxc.db.Query(query, toSearch)
 	if err != nil {
-		panic(err.Error())
+		return []string {}, err
 	}
-
 	defer res.Close()
 
 	for res.Next() {
 		var word string
-		err2 := res.Scan(&word)
-		if err2 != nil {
-			panic(err2.Error())
+		if err = res.Scan(&word); err != nil {
+			return []string {}, err
 		}
 
 		words = append(words, word)
 	}
 
-	return words
+	return words, nil
 }
 
-func (lxc *LexiconWithDB) AddAll(words []string) {
+func (lxc *LexiconWithDB) AddAll(words []string) error {
 	if len(words) == 0 {
-		return
+		return errors.New("list of words to add is empty")
 	}
 
 	query := fmt.Sprintf("INSERT INTO %s VALUES ", TABLE_NAME)
@@ -81,17 +73,16 @@ func (lxc *LexiconWithDB) AddAll(words []string) {
 	// trim the last comma (,)
 	query = query[0 : len(query)-2]
 
-	stmt, err := lxc.db.Prepare(query)
-	if err != nil {
-		panic(err.Error())
+	if stmt, err := lxc.db.Prepare(query); err != nil {
+		return err
+	} else {
+		defer stmt.Close()
+		if _, err = stmt.Exec(vals...); err != nil {
+			return err
+		}
 	}
 
-	_, err2 := stmt.Exec(vals...)
-	if err2 != nil {
-		panic(err2.Error())
-	}
-
-	defer stmt.Close()
+	return nil
 }
 
 func (lxc *LexiconWithDB) Close() {

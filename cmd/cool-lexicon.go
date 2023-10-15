@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -14,10 +13,12 @@ import (
 )
 
 var (
+	checkSetup bool
 	cfgFileLoc, opExistsWord, opSearchStartWord, opSearchEndWord, opAddAllFile string
 )
 
 func init() {
+	flag.BoolVar(&checkSetup, "check", false, "Setup all necessary configs if required. This is optional, if the all configs are already setup correctly this operation will have no effect")
 	flag.StringVar(&cfgFileLoc, "cfg", "cool-lexicon-cfg.json", "Config file location")
 	flag.StringVar(&opExistsWord, "ex", "", "Check if the given word exist")
 	flag.StringVar(&opSearchStartWord, "ss", "", "Search the lexicon to find words that start with given substring")
@@ -28,24 +29,19 @@ func init() {
 func main() {
 	flag.Parse()
 
-	sanitizeInput()
-	if err := validateInput(); err != nil {
-		return
-	}
+	sanitizeInputs()
+	validateInputs()
 
-	lxc, err := configs.GetLexicon(cfgFileLoc)
-	if err != nil {
-		fmt.Printf("Error initilising the program. %s\n", err.Error())
-	}
+	lxc := configs.GetLexicon(cfgFileLoc, checkSetup)
 	defer lxc.Close()
 
-	operateExists(lxc)
-	operateGetAllStartingWith(lxc)
-	operateGetAllEndingWith(lxc)
-	operateAddAll(lxc)
+	tryOperateExists(lxc)
+	tryOperateGetAllStartingWith(lxc)
+	tryOperateGetAllEndingWith(lxc)
+	tryOperateAddAll(lxc)
 }
 
-func sanitizeInput() {
+func sanitizeInputs() {
 	// remove any whitespaces
 	cfgFileLoc = strings.TrimSpace(cfgFileLoc)
 	opExistsWord = strings.TrimSpace(opExistsWord)
@@ -54,83 +50,99 @@ func sanitizeInput() {
 	opAddAllFile = strings.TrimSpace(opAddAllFile)
 }
 
-func validateInput() error {
+func validateInputs() {
 	if len(cfgFileLoc) == 0 {
 		// config file location string must be present; default file location string is provided to `flag`
-		return errors.New("config file location not provided")
+		log.Panic("config file location not provided")
 	}
 
 	// config file location string is there but is the location valid
 	if _, err := os.Stat(cfgFileLoc); err != nil {
-		log.Printf("%s", cfgFileLoc)
-		fmt.Println("config file not present at the provided location")
-		return err
+		log.Panic(err.Error())
 	}
 
 	if len(opExistsWord) == 0 && len(opSearchStartWord) == 0 && len(opSearchEndWord) == 0 && len(opAddAllFile) == 0 {
 		flag.PrintDefaults()
-		return errors.New("no operation flag provided")
+		log.Panic("no operation provided")
 	}
 
 	if len(opAddAllFile) != 0 { // Check if the given file exists
 		if _, err := os.Stat(opAddAllFile); err != nil {
-			fmt.Println("file location provided for add all operation is invalid")
-			return err
+			log.Panic(err.Error())
 		}
 	}
-
-	return nil
 }
 
-func operateExists(lxc lexicon.Lexicon) {
+func tryOperateExists(lxc lexicon.Lexicon) {
 	if len(opExistsWord) == 0 {
 		return
 	}
 
-	exists := lxc.CheckIfExists(string(opExistsWord))
-	fmt.Printf("exists (%s) : %t\n", opExistsWord, exists)
+	exists, err := lxc.CheckIfExists(string(opExistsWord))
+	if err != nil {
+		log.Fatalf("could not perform 'exists' for the word (%s), error: %s\n", opExistsWord, err.Error())
+	} else {
+		fmt.Printf("exists (%s) : %t\n", opExistsWord, exists)
+	}
 }
 
-func operateGetAllStartingWith(lxc lexicon.Lexicon) {
+func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	if len(opSearchStartWord) == 0 {
 		return
 	}
 
-	words := lxc.GetAllStartingWith(opSearchStartWord)
-	fmt.Printf("starts with (%s) : %v\n", opSearchStartWord, words)
+	words, err := lxc.GetAllStartingWith(opSearchStartWord)
+	if err != nil {
+		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", opExistsWord, err.Error())
+	} else {
+		fmt.Printf("starts with (%s) : %v\n", opSearchStartWord, words)
+	}
 }
 
-func operateGetAllEndingWith(lxc lexicon.Lexicon) {
+func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	if len(opSearchEndWord) == 0 {
 		return
 	}
 
-	words := lxc.GetAllEndingWith(opSearchEndWord)
-	fmt.Printf("ends with (%s) : %v\n", opSearchEndWord, words)
+	words, err := lxc.GetAllEndingWith(opSearchEndWord)
+	if err != nil {
+		log.Fatalf("could not perform 'ends with' for the word (%s), error: %s\n", opExistsWord, err.Error())
+	} else {
+		fmt.Printf("ends with (%s) : %v\n", opSearchEndWord, words)
+	}
 }
 
-func operateAddAll(lxc lexicon.Lexicon) {
+func tryOperateAddAll(lxc lexicon.Lexicon) {
 	if len(opAddAllFile) == 0 {
 		return
 	}
 
+	// open file containing words to add
 	file, err := os.Open(opAddAllFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("could not open file to add words, error: %s\n", err.Error())
+		return
 	}
 	defer file.Close()
 
 	words := make([]string, 0)
 
+	// read file contents into `words`
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		words = append(words, string(strings.TrimSpace(scanner.Text())))
 	}
 
 	if err2 := scanner.Err(); err2 != nil {
-		log.Fatal(err2)
+		log.Fatalf("could not read contents of the file to add words, error: %s\n", err2.Error())
+		return
 	}
-
-	fmt.Printf("adding words from file (%s)\n", opAddAllFile)
-	lxc.AddAll(words)
+	
+	// add `words` to lexicon
+	err3 := lxc.AddAll(words)
+	if err3 != nil {
+		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", opAddAllFile, err3.Error())
+	} else {
+		fmt.Printf("added words from the file (%s)\n", opAddAllFile)
+	}
 }
