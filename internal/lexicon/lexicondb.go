@@ -30,7 +30,7 @@ func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	for _, word := range words {
 		exist := false
 		row := lxc.db.QueryRow(query, word)
-		err := row.Scan(&exists)
+		err := row.Scan(&exist)
 		if err == nil {
 			exists = append(exists, exist)
 		} else {
