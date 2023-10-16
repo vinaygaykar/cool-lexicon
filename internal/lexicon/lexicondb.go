@@ -68,6 +68,21 @@ func (lxc *LexiconWithDB) SearchForStartingWith(substrings ...string) (map[strin
 	return result, nil
 }
 
+func (lxc *LexiconWithDB) SearchForEndingWith(substrings ...string) (map[string] []string, error) {
+	result := make(map[string] []string, 0)
+
+	for _, substring := range substrings {
+		words, err := lxc.searchSubString("%" + substring)
+		if err != nil {
+			return result, err
+		} else {
+			result[substring] = words
+		}
+	}
+
+	return result, nil
+}
+
 func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 	words := make([]string, 0)
 	query := fmt.Sprintf("SELECT l.word FROM %s l WHERE l.word LIKE ?", TABLE_NAME)

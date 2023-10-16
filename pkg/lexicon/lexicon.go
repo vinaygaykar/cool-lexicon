@@ -35,6 +35,13 @@ type Lexicon interface {
 	// If any problem occurs during lookup then non nil error is returned.
 	GetAllEndingWith(toSearch string) ([]string, error)
 
+	// SearchForEndingWith will search given 'substrings' strings and return an array of all the words that end with the string.
+	// Return value is a map where key is the 'substrings' string and value is array of matching words.
+	// If any problem occurs during lookup then non nil error is returned.
+	// If an error occurs in between while some substrings are searched and others are pending then the 
+	// return map will have only succesfully searched substrings aong with non nil error.
+	SearchForEndingWith(substrings ...string) (map[string] []string, error)
+
 	// AddAll adds the given array of words/string to current lexicon.
 	// If any problem occurs during lookup then non nil error is returned.
 	AddAll(words []string) error

@@ -102,7 +102,7 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	if words, err := lxc.GetAllEndingWith(opSearchEndWord); err != nil {
+	if words, err := lxc.SearchForEndingWith(opSearchEndWord); err != nil {
 		log.Fatalf("could not perform 'ends with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("ends with (%s) : %v\n", opSearchEndWord, words)
