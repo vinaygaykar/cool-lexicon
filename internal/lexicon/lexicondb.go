@@ -22,20 +22,15 @@ type LexiconWithDB struct {
 	db *sql.DB
 }
 
-func (lxc *LexiconWithDB) CheckIfExists(word string) (bool, error) {
-	exists := false
-	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
-
-	row := lxc.db.QueryRow(query, word)
-	err := row.Scan(&exists)
-	return exists, err
-}
-
 func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
+	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
 	exists := make([]bool, 0, len(words))
 	
 	for _, word := range words {
-		if exist, err := lxc.CheckIfExists(word); err == nil {
+		exist := false
+		row := lxc.db.QueryRow(query, word)
+		err := row.Scan(&exists)
+		if err == nil {
 			exists = append(exists, exist)
 		} else {
 			return exists, err
@@ -43,14 +38,6 @@ func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	}
 
 	return exists, nil
-}
-
-func (lxc *LexiconWithDB) GetAllStartingWith(toSearch string) ([]string, error) {
-	return lxc.searchSubString(toSearch + "%")
-}
-
-func (lxc *LexiconWithDB) GetAllEndingWith(toSearch string) ([]string, error) {
-	return lxc.searchSubString("%" + toSearch)
 }
 
 func (lxc *LexiconWithDB) SearchForStartingWith(substrings ...string) (map[string] []string, error) {
