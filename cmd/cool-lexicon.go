@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	checkSetup bool
+	checkSetup                                                                 bool
 	cfgFileLoc, opExistsWord, opSearchStartWord, opSearchEndWord, opAddAllFile string
 )
 
@@ -134,9 +134,9 @@ func tryOperateAddAll(lxc lexicon.Lexicon) {
 		log.Fatalf("could not read contents of the file to add words, error: %s\n", err.Error())
 		return
 	}
-	
+
 	// add `words` to lexicon
-	if err = lxc.AddAll(words); err != nil {
+	if err = lxc.Add(words...); err != nil {
 		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", opAddAllFile, err.Error())
 	} else {
 		fmt.Printf("added words from the file (%s)\n", opAddAllFile)
