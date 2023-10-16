@@ -12,9 +12,24 @@ type Lexicon interface {
 	// If any problem occurs during lookup then non nil error is returned.
 	CheckIfExists(word string) (bool, error)
 
+	// Lookup checks existence of the given words and returns an array of bool indicating their
+	// presence in the lexicon.
+	// If any problem occurs during lookup then non nil error is returned.
+	// If and error occurs after checking some number of words then the response will have existence
+	// proof of all the checked words and error together. In this scenarion size of returned bool array
+	// is less than the number of words.
+	Lookup(words ...string) ([]bool, error)
+
 	// GetAllStartingWith returns an array of words which all starts with toSearch string.
 	// If any problem occurs during lookup then non nil error is returned.
 	GetAllStartingWith(toSearch string) ([]string, error)
+
+	// SearchForStartingWith will search given 'substrings' strings and return an array of all the words that start with the string.
+	// Return value is a map where key is the 'substrings' string and value is array of matching words.
+	// If any problem occurs during lookup then non nil error is returned.
+	// If an error occurs in between while some substrings are searched and others are pending then the 
+	// return map will have only succesfully searched substrings aong with non nil error.
+	SearchForStartingWith(substrings ...string) (map[string] []string, error)
 	
 	// GetAllEndingWith returns an array of words which all ends with toSearch string.
 	// If any problem occurs during lookup then non nil error is returned.

@@ -31,12 +31,41 @@ func (lxc *LexiconWithDB) CheckIfExists(word string) (bool, error) {
 	return exists, err
 }
 
+func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
+	exists := make([]bool, 0, len(words))
+	
+	for _, word := range words {
+		if exist, err := lxc.CheckIfExists(word); err == nil {
+			exists = append(exists, exist)
+		} else {
+			return exists, err
+		}
+	}
+
+	return exists, nil
+}
+
 func (lxc *LexiconWithDB) GetAllStartingWith(toSearch string) ([]string, error) {
 	return lxc.searchSubString(toSearch + "%")
 }
 
 func (lxc *LexiconWithDB) GetAllEndingWith(toSearch string) ([]string, error) {
 	return lxc.searchSubString("%" + toSearch)
+}
+
+func (lxc *LexiconWithDB) SearchForStartingWith(substrings ...string) (map[string] []string, error) {
+	result := make(map[string] []string, 0)
+
+	for _, substring := range substrings {
+		words, err := lxc.searchSubString(substring + "%")
+		if err != nil {
+			return result, err
+		} else {
+			result[substring] = words
+		}
+	}
+
+	return result, nil
 }
 
 func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {

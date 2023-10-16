@@ -78,7 +78,7 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 		return
 	}
 
-	if exists, err := lxc.CheckIfExists(string(opExistsWord)); err != nil {
+	if exists, err := lxc.Lookup(opExistsWord); err != nil {
 		log.Fatalf("could not perform 'exists' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("exists (%s) : %t\n", opExistsWord, exists)
@@ -90,7 +90,7 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	if words, err := lxc.GetAllStartingWith(opSearchStartWord); err != nil {
+	if words, err := lxc.SearchForStartingWith(opSearchStartWord); err != nil {
 		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("starts with (%s) : %v\n", opSearchStartWord, words)
@@ -127,7 +127,7 @@ func tryOperateAddAll(lxc lexicon.Lexicon) {
 	// read file contents into `words`
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		words = append(words, string(strings.TrimSpace(scanner.Text())))
+		words = append(words, strings.TrimSpace(scanner.Text()))
 	}
 
 	if err = scanner.Err(); err != nil {
