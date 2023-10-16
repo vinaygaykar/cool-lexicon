@@ -92,7 +92,7 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 	return words, nil
 }
 
-func (lxc *LexiconWithDB) AddAll(words ...string) error {
+func (lxc *LexiconWithDB) Add(words ...string) error {
 	if len(words) == 0 {
 		return errors.New("list of words to add is empty")
 	}
