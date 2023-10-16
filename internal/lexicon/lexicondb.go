@@ -10,6 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var errNoWordsToAdd = errors.New("list of words to add is empty")
 const TABLE_NAME = "lexicon"
 
 func Open(db *sql.DB) *LexiconWithDB {
@@ -40,7 +41,7 @@ func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	return exists, nil
 }
 
-func (lxc *LexiconWithDB) SearchForStartingWith(substrings ...string) (map[string] []string, error) {
+func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[string] []string, error) {
 	result := make(map[string] []string, 0)
 
 	for _, substring := range substrings {
@@ -55,7 +56,7 @@ func (lxc *LexiconWithDB) SearchForStartingWith(substrings ...string) (map[strin
 	return result, nil
 }
 
-func (lxc *LexiconWithDB) SearchForEndingWith(substrings ...string) (map[string] []string, error) {
+func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (map[string] []string, error) {
 	result := make(map[string] []string, 0)
 
 	for _, substring := range substrings {
@@ -94,7 +95,7 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 
 func (lxc *LexiconWithDB) Add(words ...string) error {
 	if len(words) == 0 {
-		return errors.New("list of words to add is empty")
+		return errNoWordsToAdd
 	}
 
 	query := fmt.Sprintf("INSERT INTO %s VALUES ", TABLE_NAME)

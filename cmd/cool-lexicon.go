@@ -90,7 +90,7 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	if words, err := lxc.SearchForStartingWith(opSearchStartWord); err != nil {
+	if words, err := lxc.GetAllWordsStartingWith(opSearchStartWord); err != nil {
 		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("starts with (%s) : %v\n", opSearchStartWord, words)
@@ -102,7 +102,7 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 		return
 	}
 
-	if words, err := lxc.SearchForEndingWith(opSearchEndWord); err != nil {
+	if words, err := lxc.GetAllWordsEndingWith(opSearchEndWord); err != nil {
 		log.Fatalf("could not perform 'ends with' for the word (%s), error: %s\n", opExistsWord, err.Error())
 	} else {
 		fmt.Printf("ends with (%s) : %v\n", opSearchEndWord, words)
