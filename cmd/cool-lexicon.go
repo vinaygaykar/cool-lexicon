@@ -108,12 +108,15 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 }
 
 func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
-	if len(inputs.opSearchStartingWith) == 0 {
-		return
+	words, err := getWords(inputs.opSearchStartingWith)
+	if err != nil {
+		log.Fatalf("could not perform 'search starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
+	} else if len(words) == 0 {
+		return // this operation was not selected
 	}
-
+	
 	if words, err := lxc.GetAllWordsStartingWith(inputs.opSearchStartingWith); err != nil {
-		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", inputs.opLookup, err.Error())
+		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
 	} else {
 		fmt.Printf("starts with (%s) : %v\n", inputs.opSearchStartingWith, words)
 	}
