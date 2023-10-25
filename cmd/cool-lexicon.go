@@ -116,19 +116,22 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	}
 	
 	if words, err := lxc.GetAllWordsStartingWith(inputs.opSearchStartingWith); err != nil {
-		log.Fatalf("could not perform 'starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
+		log.Fatalf("could not perform 'search starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
 	} else {
 		fmt.Printf("starts with (%s) : %v\n", inputs.opSearchStartingWith, words)
 	}
 }
 
 func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
-	if len(inputs.opSearchEndingWith) == 0 {
-		return
+	words, err := getWords(inputs.opSearchEndingWith)
+	if err != nil {
+		log.Fatalf("could not perform 'search ends with' for the word (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
+	} else if len(words) == 0 {
+		return // this operation was not selected
 	}
 
 	if words, err := lxc.GetAllWordsEndingWith(inputs.opSearchEndingWith); err != nil {
-		log.Fatalf("could not perform 'ends with' for the word (%s), error: %s\n", inputs.opLookup, err.Error())
+		log.Fatalf("could not perform 'search ends with' for the word (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
 	} else {
 		fmt.Printf("ends with (%s) : %v\n", inputs.opSearchEndingWith, words)
 	}
