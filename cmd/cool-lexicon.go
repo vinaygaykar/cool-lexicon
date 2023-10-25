@@ -95,13 +95,13 @@ func validateInputs() {
 func tryOperateExists(lxc lexicon.Lexicon) {
 	words, err := getWords(inputs.opLookup)
 	if err != nil {
-		log.Fatalf("could not perform 'exists' for the word (%s), error: %s\n", inputs.opLookup, err.Error())
+		log.Fatalf("could not perform 'exists' for input (%s), error: %s\n", inputs.opLookup, err.Error())
 	} else if len(words) == 0 {
 		return // this operation was not selected
 	}
 
 	if exists, err := lxc.Lookup(words...); err != nil {
-		log.Fatalf("could not perform 'exists' for the word (%s), error: %s\n", inputs.opLookup, err.Error())
+		log.Fatalf("could not perform 'exists' for input (%s), error: %s\n", inputs.opLookup, err.Error())
 	} else {
 		fmt.Printf("exists (%s) : %t\n", inputs.opLookup, exists)
 	}
@@ -110,57 +110,39 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	words, err := getWords(inputs.opSearchStartingWith)
 	if err != nil {
-		log.Fatalf("could not perform 'search starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
+		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
 	} else if len(words) == 0 {
 		return // this operation was not selected
 	}
 	
-	if words, err := lxc.GetAllWordsStartingWith(inputs.opSearchStartingWith); err != nil {
-		log.Fatalf("could not perform 'search starts with' for the word (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
+	if searches, err := lxc.GetAllWordsStartingWith(words...); err != nil {
+		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
 	} else {
-		fmt.Printf("starts with (%s) : %v\n", inputs.opSearchStartingWith, words)
+		fmt.Printf("search starts with (%s) : %v\n", words, searches)
 	}
 }
 
 func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	words, err := getWords(inputs.opSearchEndingWith)
 	if err != nil {
-		log.Fatalf("could not perform 'search ends with' for the word (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
+		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
 	} else if len(words) == 0 {
 		return // this operation was not selected
 	}
 
-	if words, err := lxc.GetAllWordsEndingWith(inputs.opSearchEndingWith); err != nil {
-		log.Fatalf("could not perform 'search ends with' for the word (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
+	if searches, err := lxc.GetAllWordsEndingWith(words...); err != nil {
+		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
 	} else {
-		fmt.Printf("ends with (%s) : %v\n", inputs.opSearchEndingWith, words)
+		fmt.Printf("search ends with (%s) : %v\n", inputs.opSearchEndingWith, searches)
 	}
 }
 
 func tryOperateAddAll(lxc lexicon.Lexicon) {
-	if len(inputs.opAdd) == 0 {
-		return
-	}
-
-	// open file containing words to add
-	file, err := os.Open(inputs.opAdd)
+	words, err := getWords(inputs.opAdd)
 	if err != nil {
-		log.Fatalf("could not open file to add words, error: %s\n", err.Error())
-		return
-	}
-	defer file.Close()
-
-	words := make([]string, 0)
-
-	// read file contents into `words`
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		words = append(words, strings.TrimSpace(scanner.Text()))
-	}
-
-	if err = scanner.Err(); err != nil {
-		log.Fatalf("could not read contents of the file to add words, error: %s\n", err.Error())
-		return
+		log.Fatalf("could not perform 'add words' for input (%s), error: %s\n", inputs.opAdd, err.Error())
+	} else if len(words) == 0 {
+		return // this operation was not selected
 	}
 
 	// add `words` to lexicon
