@@ -1,19 +1,31 @@
 // Package lexicon defines an Lexicon interface.
 package lexicon
 
+// A OperationResult represents result of lexicon operation performed on an individual word.
+// It is a wrapper for value-error pair where either of the two will be valid.
+type OperationResult[V bool | *[]string] struct {
+	// Err specifies if this poeration resulted in an error. If err is non nil then value should be considered useless
+	Err error
+
+	// Value is result of the operation performed. Value will be garbage or nil if err is non nil
+	Value V
+}
+
 // A Lexicon is an collection of words.
 // Unlike dictionary, lexicon only stores words/string and no value (meaning).
 // Like dictionary, various operation such as search or add can be performed on a Lexicon.
 // A word is just a string in golang terms.
 type Lexicon interface {
 
-	// Lookup checks existence of the given words and returns an array of bool indicating their
-	// presence in the lexicon.
-	// If any problem occurs during lookup then non nil error is returned.
-	// If and error occurs after checking some number of words then the response will have existence
-	// proof of all the checked words and error together. In this scenarion size of returned bool array
-	// is less than the number of words.
-	Lookup(words ...string) ([]bool, error)
+	// Lookup checks existence of the given words and returns a pointer to the map of OperationResult indicating their presence in the lexicon.
+	// For every word passed, it will have a corresponding entry in the result map with key being the word itself and the value
+	// being the an instance of OperationResult.
+	// Existence of a word will be represented using boolean value within OperationResult,
+	// if an error occurs during lookup then err value will be present.
+	// If any critical error occurs then the error is returned and in such cases value of the map should not be trusted.
+	// If words are nil then map is empty and error is returned.
+	// If words are empty then map is empty and error is nil.
+	Lookup(words ...string) (*map[string]OperationResult[bool], error)
 
 	// GetAllWordsStartingWith will search given 'substrings' strings and return an array of all the words that start with the string.
 	// Return value is a map where key is the 'substrings' string and value is array of matching words.

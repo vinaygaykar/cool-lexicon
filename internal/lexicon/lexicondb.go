@@ -6,43 +6,62 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	lx "github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
-var errNoWordsToAdd = errors.New("list of words to add is empty")
+var (
+	errNilWords = errors.New("list of words is nil")
+)
 
 const TABLE_NAME = "lexicon"
 
 func Open(db *sql.DB) *LexiconWithDB {
-	return &LexiconWithDB{
-		db: db,
+	if db == nil {
+		log.Panicln("database value is nil")
 	}
+
+	return &LexiconWithDB{db: db}
 }
 
 type LexiconWithDB struct {
 	db *sql.DB
 }
 
-func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
+func (lxc *LexiconWithDB) Lookup(words ...string) (*map[string]lx.OperationResult[bool], error) {
+	if words == nil {
+		return &map[string]lx.OperationResult[bool]{}, errNilWords
+	} else if len(words) == 0 {
+		return &map[string]lx.OperationResult[bool]{}, nil
+	}
+
 	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
-	exists := make([]bool, 0, len(words))
+	exists := make(map[string]lx.OperationResult[bool], 0)
 
 	for _, word := range words {
 		exist := false
 		row := lxc.db.QueryRow(query, word)
-		
-		if err := row.Scan(&exist); err == nil {
-			exists = append(exists, exist)
+		err := row.Scan(&exist)
+		if err == nil {
+			exists[word] = lx.OperationResult[bool]{Value: exist}
 		} else {
-			return exists, err
+			exists[word] = lx.OperationResult[bool]{Err: err}
 		}
 	}
 
-	return exists, nil
+	return &exists, nil
 }
 
 func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[string][]string, error) {
+	if substrings == nil {
+		return map[string][]string{}, errNilWords
+	} else if len(substrings) == 0 {
+		return map[string][]string{}, nil
+	}
+
 	result := make(map[string][]string, 0)
 
 	for _, substring := range substrings {
@@ -58,6 +77,12 @@ func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[str
 }
 
 func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (map[string][]string, error) {
+	if substrings == nil {
+		return map[string][]string{}, errNilWords
+	} else if len(substrings) == 0 {
+		return map[string][]string{}, nil
+	}
+
 	result := make(map[string][]string, 0)
 
 	for _, substring := range substrings {
@@ -95,8 +120,10 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 }
 
 func (lxc *LexiconWithDB) Add(words ...string) error {
-	if len(words) == 0 {
-		return errNoWordsToAdd
+	if words == nil {
+		return errNilWords
+	} else if len(words) == 0 {
+		return nil
 	}
 
 	query := fmt.Sprintf("INSERT INTO %s VALUES ", TABLE_NAME)

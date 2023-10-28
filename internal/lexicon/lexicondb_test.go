@@ -88,7 +88,6 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 	type args struct {
 		words []string
 	}
-
 	tests := []struct {
 		name    string
 		fields  fields
@@ -131,7 +130,6 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 				t.Errorf("LexiconWithDB.Lookup() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LexiconWithDB.Lookup() = %v, want %v", got, tt.want)
 			}
