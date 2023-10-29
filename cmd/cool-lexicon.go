@@ -97,10 +97,11 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 		}
 	}
 
-	if exists, err := lxc.Lookup(words...); err != nil {
+	if response, err := lxc.Lookup(words...); err != nil {
 		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	} else {
-		fmt.Printf("exists (%s) : %t\n", args.opLookup, exists)
+		log.Println("exists result: ")
+		(&io.ConsumeOutputToLog[bool]{}).Consume(response, false)
 	}
 }
 

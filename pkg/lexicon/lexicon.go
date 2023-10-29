@@ -3,12 +3,12 @@ package lexicon
 
 // A OperationResult represents result of lexicon operation performed on an individual word.
 // It is a wrapper for value-error pair where either of the two will be valid.
-type OperationResult[V bool | *[]string] struct {
+type OperationResult[V bool | []string] struct {
 	// Err specifies if this poeration resulted in an error. If err is non nil then value should be considered useless
-	Err error
+	Err error 	`json:"error"`
 
 	// Value is result of the operation performed. Value will be garbage or nil if err is non nil
-	Value V
+	Value V		`json:"value"`
 }
 
 // A Lexicon is an collection of words.
