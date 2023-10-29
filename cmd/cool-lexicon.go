@@ -13,6 +13,7 @@ import (
 	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
+// A ProgramInput holds all the input values provided to the program.
 type ProgramInputs struct {
 	configFile               string // Location of the config file
 	shouldPerformSetupChecks bool   // true if setup checks should be performed
@@ -83,12 +84,6 @@ func validateInputs() {
 	if len(inputs.opLookup) == 0 && len(inputs.opSearchStartingWith) == 0 && len(inputs.opSearchEndingWith) == 0 && len(inputs.opAdd) == 0 {
 		flag.PrintDefaults()
 		log.Panic("no operation provided")
-	}
-
-	if len(inputs.opAdd) != 0 { // Check if the given file exists
-		if _, err := os.Stat(inputs.opAdd); err != nil {
-			log.Panic(err.Error())
-		}
 	}
 }
 
