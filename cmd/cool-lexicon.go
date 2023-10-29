@@ -117,7 +117,7 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	if searches, err := lxc.GetAllWordsStartingWith(words...); err != nil {
 		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
 	} else {
-		fmt.Printf("search starts with (%s) : %v\n", words, searches)
+		fmt.Printf("search starts with (%s) : %v\n", args.opSearchStartingWith, searches)
 	}
 }
 
