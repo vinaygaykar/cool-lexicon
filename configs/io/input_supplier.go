@@ -24,11 +24,11 @@ type SupplyInput interface {
 	Get(rawValue string) ([]string, error)
 }
 
-// A SupplyInputFromWord is one of the implementation of SupplyInput.
+// A SupplyWordsFromCLI is one of the implementation of SupplyInput.
 // It processes and treat the passed rawValue as a single word itself.
-type SupplyInputFromWord struct{}
+type SupplyWordsFromCLI struct{}
 
-func (si *SupplyInputFromWord) Get(rawValue string) ([]string, error) {
+func (si *SupplyWordsFromCLI) Get(rawValue string) ([]string, error) {
 	value := strings.TrimSpace(rawValue)
 
 	if len(value) == 0 {
@@ -38,11 +38,11 @@ func (si *SupplyInputFromWord) Get(rawValue string) ([]string, error) {
 	return []string{value}, nil
 }
 
-// A SupplyInputFromFile is one of the implementation of SupplyInput.
+// A SupplyWordsFromFile is one of the implementation of SupplyInput.
 // It processes and treat the passed rawValue as a file path which contains words to be used as input.
-type SupplyInputFromFile struct{}
+type SupplyWordsFromFile struct{}
 
-func (si *SupplyInputFromFile) Get(rawValue string) ([]string, error) {
+func (si *SupplyWordsFromFile) Get(rawValue string) ([]string, error) {
 	path := strings.TrimSpace(rawValue)
 
 	if len(path) == 0 {
