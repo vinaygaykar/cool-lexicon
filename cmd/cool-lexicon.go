@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"flag"
 	"fmt"
@@ -10,10 +9,12 @@ import (
 	"strings"
 
 	"github.com/vinaygaykar/cool-lexicon/configs"
+	"github.com/vinaygaykar/cool-lexicon/configs/io"
 	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
 )
 
-type ProgramInputs struct {
+// A ProgramInput holds all the input values provided to the program.
+type ProgramArgs struct {
 	configFile               string // Location of the config file
 	shouldPerformSetupChecks bool   // true if setup checks should be performed
 	isFileBasedInput         bool   // true if the input should be read from the given file instead of the command line
@@ -25,24 +26,18 @@ type ProgramInputs struct {
 }
 
 var (
-	// arg inputs
-	inputs ProgramInputs
-
-	// errors
-	errFileInvalid = errors.New("file contents are invalid/empty or file is corrupt or file does not exist")
-
-	// constant responses
-	noWords = []string{}
+	args         ProgramArgs
+	wordSupplier io.SupplyInput
 )
 
 func init() {
-	flag.BoolVar(&inputs.shouldPerformSetupChecks, "check", false, "Setup all necessary configs if required. This is optional, if the all configs are already setup correctly this operation will have no effect")
-	flag.BoolVar(&inputs.isFileBasedInput, "if", false, "This flag indicates that input words to every operation should be taken from a file present at the given location")
-	flag.StringVar(&inputs.configFile, "cfg", "cool-lexicon-cfg.json", "Config file location")
-	flag.StringVar(&inputs.opLookup, "ex", "", "Check if the given word exist")
-	flag.StringVar(&inputs.opSearchStartingWith, "ss", "", "Search the lexicon to find words that start with given substring")
-	flag.StringVar(&inputs.opSearchEndingWith, "se", "", "Search the lexicon to find words that end with given substring")
-	flag.StringVar(&inputs.opAdd, "ad", "", "Add words present in given file location to lexicon")
+	flag.BoolVar(&args.shouldPerformSetupChecks, "check", false, "Setup all necessary configs if required. This is optional, if the all configs are already setup correctly this operation will have no effect")
+	flag.BoolVar(&args.isFileBasedInput, "if", false, "This flag indicates that input words to every operation should be taken from a file present at the given location")
+	flag.StringVar(&args.configFile, "cfg", "cool-lexicon-cfg.json", "Config file location")
+	flag.StringVar(&args.opLookup, "ex", "", "Check if the given word exist")
+	flag.StringVar(&args.opSearchStartingWith, "ss", "", "Search the lexicon to find words that start with given substring")
+	flag.StringVar(&args.opSearchEndingWith, "se", "", "Search the lexicon to find words that end with given substring")
+	flag.StringVar(&args.opAdd, "ad", "", "Add words present in given file location to lexicon")
 }
 
 func main() {
@@ -51,7 +46,13 @@ func main() {
 	sanitizeInputs()
 	validateInputs()
 
-	lxc := configs.GetLexicon(inputs.configFile, inputs.shouldPerformSetupChecks)
+	if args.isFileBasedInput {
+		wordSupplier = &io.SupplyWordsFromFile{}
+	} else {
+		wordSupplier = &io.SupplyWordsFromCLI{}
+	}
+
+	lxc := configs.GetLexicon(args.configFile, args.shouldPerformSetupChecks)
 	defer lxc.Close()
 
 	tryOperateExists(lxc)
@@ -62,128 +63,94 @@ func main() {
 
 func sanitizeInputs() {
 	// remove any whitespaces
-	inputs.configFile = strings.TrimSpace(inputs.configFile)
-	inputs.opLookup = strings.TrimSpace(inputs.opLookup)
-	inputs.opSearchStartingWith = strings.TrimSpace(inputs.opSearchStartingWith)
-	inputs.opSearchEndingWith = strings.TrimSpace(inputs.opSearchEndingWith)
-	inputs.opAdd = strings.TrimSpace(inputs.opAdd)
+	args.configFile = strings.TrimSpace(args.configFile)
+	args.opLookup = strings.TrimSpace(args.opLookup)
+	args.opSearchStartingWith = strings.TrimSpace(args.opSearchStartingWith)
+	args.opSearchEndingWith = strings.TrimSpace(args.opSearchEndingWith)
+	args.opAdd = strings.TrimSpace(args.opAdd)
 }
 
 func validateInputs() {
-	if len(inputs.configFile) == 0 {
+	if len(args.configFile) == 0 {
 		// config file location string must be present; default file location string is provided to `flag`
 		log.Panic("config file location not provided")
 	}
 
 	// config file location string is there but is the location valid
-	if _, err := os.Stat(inputs.configFile); err != nil {
+	if _, err := os.Stat(args.configFile); err != nil {
 		log.Panic(err.Error())
 	}
 
-	if len(inputs.opLookup) == 0 && len(inputs.opSearchStartingWith) == 0 && len(inputs.opSearchEndingWith) == 0 && len(inputs.opAdd) == 0 {
+	if len(args.opLookup) == 0 && len(args.opSearchStartingWith) == 0 && len(args.opSearchEndingWith) == 0 && len(args.opAdd) == 0 {
 		flag.PrintDefaults()
 		log.Panic("no operation provided")
-	}
-
-	if len(inputs.opAdd) != 0 { // Check if the given file exists
-		if _, err := os.Stat(inputs.opAdd); err != nil {
-			log.Panic(err.Error())
-		}
 	}
 }
 
 func tryOperateExists(lxc lexicon.Lexicon) {
-	words, err := getWords(inputs.opLookup)
+	words, err := wordSupplier.Get(args.opLookup)
 	if err != nil {
-		log.Fatalf("could not perform 'exists' for input (%s), error: %s\n", inputs.opLookup, err.Error())
-	} else if len(words) == 0 {
-		return // this operation was not selected
+		if errors.Is(io.ErrNoInputValue, err) {
+			return // this operation was not selected
+		} else {
+			log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
+		}
 	}
 
 	if exists, err := lxc.Lookup(words...); err != nil {
-		log.Fatalf("could not perform 'exists' for input (%s), error: %s\n", inputs.opLookup, err.Error())
+		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	} else {
-		fmt.Printf("exists (%s) : %t\n", inputs.opLookup, exists)
+		fmt.Printf("exists (%s) : %t\n", args.opLookup, exists)
 	}
 }
 
 func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
-	words, err := getWords(inputs.opSearchStartingWith)
+	words, err := wordSupplier.Get(args.opSearchStartingWith)
 	if err != nil {
-		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
-	} else if len(words) == 0 {
-		return // this operation was not selected
+		if errors.Is(io.ErrNoInputValue, err) {
+			return // this operation was not selected
+		} else {
+			log.Printf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
+		}
 	}
-	
+
 	if searches, err := lxc.GetAllWordsStartingWith(words...); err != nil {
-		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", inputs.opSearchStartingWith, err.Error())
+		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
 	} else {
-		fmt.Printf("search starts with (%s) : %v\n", words, searches)
+		fmt.Printf("search starts with (%s) : %v\n", args.opSearchStartingWith, searches)
 	}
 }
 
 func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
-	words, err := getWords(inputs.opSearchEndingWith)
+	words, err := wordSupplier.Get(args.opSearchEndingWith)
 	if err != nil {
-		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
-	} else if len(words) == 0 {
-		return // this operation was not selected
+		if errors.Is(io.ErrNoInputValue, err) {
+			return // this operation was not selected
+		} else {
+			log.Printf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
+		}
 	}
 
 	if searches, err := lxc.GetAllWordsEndingWith(words...); err != nil {
-		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", inputs.opSearchEndingWith, err.Error())
+		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
 	} else {
-		fmt.Printf("search ends with (%s) : %v\n", inputs.opSearchEndingWith, searches)
+		fmt.Printf("search ends with (%s) : %v\n", args.opSearchEndingWith, searches)
 	}
 }
 
 func tryOperateAddAll(lxc lexicon.Lexicon) {
-	words, err := getWords(inputs.opAdd)
+	words, err := wordSupplier.Get(args.opAdd)
 	if err != nil {
-		log.Fatalf("could not perform 'add words' for input (%s), error: %s\n", inputs.opAdd, err.Error())
-	} else if len(words) == 0 {
-		return // this operation was not selected
+		if errors.Is(io.ErrNoInputValue, err) {
+			return // this operation was not selected
+		} else {
+			log.Printf("could not perform 'add words' for input (%s), error: %s\n", args.opAdd, err.Error())
+		}
 	}
 
-	// add `words` to lexicon
 	if err = lxc.Add(words...); err != nil {
-		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", inputs.opAdd, err.Error())
+		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", args.opAdd, err.Error())
 	} else {
-		fmt.Printf("added words from the file (%s)\n", inputs.opAdd)
+		fmt.Printf("added words from the file (%s)\n", args.opAdd)
 	}
-}
-
-func getWords(value string) ([]string, error) {
-	if len(value) == 0 { // empty input value; return empty result
-		return noWords, nil
-	}
-
-	if inputs.isFileBasedInput {
-		return readFileAt(value)
-	} else { // input is a single word
-		return []string{value}, nil
-	}
-}
-
-func readFileAt(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return noWords, errors.Join(errFileInvalid, err)
-	}
-
-	words := make([]string, 0)
-
-	// read file contents into `words`
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		words = append(words, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatalf("could not read contents from file %s, error: %s\n", file.Name(), err.Error())
-		return noWords, errors.Join(errFileInvalid, err)
-	}
-
-	return words, nil
 }
