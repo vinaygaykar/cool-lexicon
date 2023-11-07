@@ -11,6 +11,7 @@ import (
 )
 
 var errNoWordsToAdd = errors.New("list of words to add is empty")
+
 const TABLE_NAME = "lexicon"
 
 func Open(db *sql.DB) *LexiconWithDB {
@@ -26,7 +27,7 @@ type LexiconWithDB struct {
 func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
 	exists := make([]bool, 0, len(words))
-	
+
 	for _, word := range words {
 		exist := false
 		row := lxc.db.QueryRow(query, word)
@@ -41,8 +42,8 @@ func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	return exists, nil
 }
 
-func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[string] []string, error) {
-	result := make(map[string] []string, 0)
+func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[string][]string, error) {
+	result := make(map[string][]string, 0)
 
 	for _, substring := range substrings {
 		words, err := lxc.searchSubString(substring + "%")
@@ -56,8 +57,8 @@ func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[str
 	return result, nil
 }
 
-func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (map[string] []string, error) {
-	result := make(map[string] []string, 0)
+func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (map[string][]string, error) {
+	result := make(map[string][]string, 0)
 
 	for _, substring := range substrings {
 		words, err := lxc.searchSubString("%" + substring)
@@ -77,14 +78,14 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 
 	res, err := lxc.db.Query(query, toSearch)
 	if err != nil {
-		return []string {}, err
+		return []string{}, err
 	}
 	defer res.Close()
 
 	for res.Next() {
 		var word string
 		if err = res.Scan(&word); err != nil {
-			return []string {}, err
+			return []string{}, err
 		}
 
 		words = append(words, word)
