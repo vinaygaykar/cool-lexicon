@@ -98,10 +98,17 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Given a word exists in db when lookup is called for the word then return true should be returned",
+			name:    "Given a Lexicon which contains an word, when lookup is invoked for the existing word, then return true should be returned",
 			fields:  fields{db: db},
 			args:    args{words: []string{"exists"}},
 			want:    []bool{true},
+			wantErr: false,
+		},
+		{
+			name:    "Given a Lexicon which contains an word, when lookup is invoked for that non existing word, then return value should be false",
+			fields:  fields{db: db},
+			args:    args{words: []string{"nonexists"}},
+			want:    []bool{false},
 			wantErr: false,
 		},
 	}
@@ -111,7 +118,7 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 			lxc := &LexiconWithDB{
 				db: tt.fields.db,
 			}
-			
+
 			got, err := lxc.Lookup(tt.args.words...)
 			
 			if (err != nil) != tt.wantErr {
