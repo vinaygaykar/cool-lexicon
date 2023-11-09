@@ -111,7 +111,7 @@ func performSetupChecks(username, password, host string, port int, database stri
 	defer db.Close()
 
 	log.Println("Creating table lexicon if it does not already exists")
-	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL)", database)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (word))", database)); err != nil {
 		log.Panic(err.Error())
 	}
 
