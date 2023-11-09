@@ -31,8 +31,8 @@ func (lxc *LexiconWithDB) Lookup(words ...string) ([]bool, error) {
 	for _, word := range words {
 		exist := false
 		row := lxc.db.QueryRow(query, word)
-		err := row.Scan(&exist)
-		if err == nil {
+		
+		if err := row.Scan(&exist); err == nil {
 			exists = append(exists, exist)
 		} else {
 			return exists, err
@@ -49,7 +49,7 @@ func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (map[str
 		words, err := lxc.searchSubString(substring + "%")
 		if err != nil {
 			return result, err
-		} else {
+		} else if len(words) != 0 {
 			result[substring] = words
 		}
 	}
@@ -64,7 +64,7 @@ func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (map[strin
 		words, err := lxc.searchSubString("%" + substring)
 		if err != nil {
 			return result, err
-		} else {
+		} else if len(words) != 0 {
 			result[substring] = words
 		}
 	}
