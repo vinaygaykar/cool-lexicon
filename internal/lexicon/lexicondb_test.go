@@ -207,3 +207,69 @@ func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
 		})
 	}
 }
+
+func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancelCtx := context.WithTimeout(ctx, 2*time.Minute)
+	db, closeDB := getDB(&ctx)
+
+	defer cancelCtx()
+	defer closeDB()
+
+	type fields struct {
+		db *sql.DB
+	}
+	type args struct {
+		substrings []string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    map[string][]string
+		wantErr bool
+	}{
+		{
+			name:   "Given a Lexicon with some words, when SearchEndsWith is invoked for existing word, then return all the words ending with the substring sorted lexicographically",
+			fields: fields{db: db},
+			args:   args{substrings: []string{"र"}},
+			want: map[string][]string{
+				"र": {"नमस्कार", "सुंदर"},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "Given a Lexicon with some words, when SearchEndsWith is invoked for non-existing word, then return no response for the substring",
+			fields:  fields{db: db},
+			args:    args{substrings: []string{"क्र"}},
+			want:    make(map[string][]string, 0),
+			wantErr: false,
+		},
+		{
+			name:   "Given a Lexicon with some words, when SearchEndsWith is invoked for mix of existing & non existing word, then return all the words ending with the existing words mapped to correct key sorted lexicographically while non existing words have no entry",
+			fields: fields{db: db},
+			args:   args{substrings: []string{"र", "somethingelse", "क्ष", "वाद"}},
+			want: map[string][]string{
+				"र":   {"नमस्कार", "सुंदर"},
+				"क्ष": {"मोक्ष"},
+				"वाद": {"धन्यवाद"},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lxc := &LexiconWithDB{
+				db: tt.fields.db,
+			}
+			got, err := lxc.GetAllWordsEndingWith(tt.args.substrings...)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LexiconWithDB.GetAllWordsEndingWith() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("LexiconWithDB.GetAllWordsEndingWith() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
