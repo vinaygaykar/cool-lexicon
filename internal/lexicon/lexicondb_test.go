@@ -273,3 +273,54 @@ func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
 		})
 	}
 }
+
+func TestLexiconWithDB_Add(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancelCtx := context.WithTimeout(ctx, 2*time.Minute)
+	db, closeDB := getDB(&ctx)
+
+	defer cancelCtx()
+	defer closeDB()
+
+	type fields struct {
+		db *sql.DB
+	}
+	type args struct {
+		words []string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "Given a Lexicon with some words, when Add is invoked with empty array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{words: []string{}},
+			wantErr: true,
+		},
+		{
+			name:    "Given a Lexicon with some words, when Add is invoked on a new non existent word, then no error is expected",
+			fields:  fields{db: db},
+			args:    args{words: []string{"देव"}},
+			wantErr: false,
+		},
+		{
+			name:    "Given a Lexicon with some words, when Lookup is invoked multiple words some exists and others don't, then return value should be true only for existing words",
+			fields:  fields{db: db},
+			args:    args{words: []string{"नमस्कार"}},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lxc := &LexiconWithDB{
+				db: tt.fields.db,
+			}
+			if err := lxc.Add(tt.args.words...); (err != nil) != tt.wantErr {
+				t.Errorf("LexiconWithDB.Add() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
