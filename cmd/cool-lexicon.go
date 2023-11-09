@@ -18,6 +18,7 @@ type ProgramArgs struct {
 	configFile               string // Location of the config file
 	shouldPerformSetupChecks bool   // true if setup checks should be performed
 	isFileBasedInput         bool   // true if the input should be read from the given file instead of the command line
+	outputFolderPath         string   // true if the output should be printed to file instead of the command line
 
 	opLookup             string // value of the LOOKUP operation, if `isFileBasedInput` is true then this is file location else this is a word to operate on
 	opSearchStartingWith string // value of the SEARCH START WITH operation, if `isFileBasedInput` is true then this is file location else this is a word to operate on
@@ -26,13 +27,15 @@ type ProgramArgs struct {
 }
 
 var (
-	args         ProgramArgs
-	wordSupplier io.SupplyInput
+	args          ProgramArgs
+	wordSupplier  io.SupplyInput
+	outputPrinter io.ConsumeOutput
 )
 
 func init() {
 	flag.BoolVar(&args.shouldPerformSetupChecks, "check", false, "Setup all necessary configs if required. This is optional, if the all configs are already setup correctly this operation will have no effect")
-	flag.BoolVar(&args.isFileBasedInput, "if", false, "This flag indicates that input words to every operation should be taken from a file present at the given location")
+	flag.BoolVar(&args.isFileBasedInput, "if", false, "This flag indicates that input words to every operation should be taken from the file passed as value to individual operation")
+	flag.StringVar(&args.outputFolderPath, "of", "", "This flag indicates that output to every operation should be printed to files (created for every operation) at given path")
 	flag.StringVar(&args.configFile, "cfg", "cool-lexicon-cfg.json", "Config file location")
 	flag.StringVar(&args.opLookup, "ex", "", "Check if the given word exist")
 	flag.StringVar(&args.opSearchStartingWith, "ss", "", "Search the lexicon to find words that start with given substring")
@@ -52,6 +55,12 @@ func main() {
 		wordSupplier = &io.SupplyWordsFromCLI{}
 	}
 
+	if len(args.outputFolderPath) == 0 {
+		outputPrinter = &io.ConsumeOutputToLog{}
+	} else {
+		outputPrinter = &io.ConsumeOutputToFile{ OutputFolderPath: args.outputFolderPath }
+	}
+
 	lxc := configs.GetLexicon(args.configFile, args.shouldPerformSetupChecks)
 	defer lxc.Close()
 
@@ -68,6 +77,7 @@ func sanitizeInputs() {
 	args.opSearchStartingWith = strings.TrimSpace(args.opSearchStartingWith)
 	args.opSearchEndingWith = strings.TrimSpace(args.opSearchEndingWith)
 	args.opAdd = strings.TrimSpace(args.opAdd)
+	args.outputFolderPath = strings.TrimSpace(args.outputFolderPath)
 }
 
 func validateInputs() {
@@ -101,7 +111,7 @@ func tryOperateExists(lxc lexicon.Lexicon) {
 		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	} else {
 		log.Println("exists result: ")
-		(&io.ConsumeOutputToLog[bool]{}).Consume(response, false)
+		outputPrinter.ConsumeBool("lookup", response, false)
 	}
 }
 
