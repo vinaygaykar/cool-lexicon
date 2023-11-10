@@ -40,9 +40,9 @@ type Configs struct {
 // GetLexicon returns an instance of Lexicon object configured using properties as described in configFileLoc.
 // For now instance of LexiconWithDB is provided as an instance of Lexicon, which uses MySQL as data storage solution.
 // If configFileLoc is empty or invalid then GetLexicon will panic.
-// If checkSetup is true then system checks are performed to make sure everything is setup as expected. 
+// If checkSetup is true then system checks are performed to make sure everything is setup as expected.
 // If system is setup is incorrectly then it will "try" to correct the setup or end up panicking. This field
-// is useful during troubleshooting and should only be set once during first run, on later runs if this value 
+// is useful during troubleshooting and should only be set once during first run, on later runs if this value
 // is set it won't cause any harm but might slow down the operations.
 func GetLexicon(configFileLoc string, checkSetup bool) lexicon.Lexicon {
 	if len(configFileLoc) == 0 {

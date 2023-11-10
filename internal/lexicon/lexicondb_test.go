@@ -88,34 +88,47 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 	type args struct {
 		words []string
 	}
-
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    []bool
+		want    *[]string
 		wantErr bool
 	}{
 		{
 			name:    "Given a Lexicon with some words, when Lookup is invoked for the existing word, then return true should be returned",
 			fields:  fields{db: db},
 			args:    args{words: []string{"नमस्ते"}},
-			want:    []bool{true},
+			want:    &([]string{"नमस्ते"}),
 			wantErr: false,
 		},
 		{
 			name:    "Given a Lexicon with some words, when Lookup is invoked for that non existing word, then return value should be false",
 			fields:  fields{db: db},
 			args:    args{words: []string{"notexists"}},
-			want:    []bool{false},
+			want:    &([]string{}),
 			wantErr: false,
 		},
 		{
 			name:    "Given a Lexicon with some words, when Lookup is invoked multiple words some exists and others don't, then return value should be true only for existing words",
 			fields:  fields{db: db},
 			args:    args{words: []string{"नमस्कार", "notexists", "सुंदर", "धन्यवाद", "पराक्रम", "पानी"}},
-			want:    []bool{true, false, true, true, false, false},
+			want:    &([]string{"नमस्कार", "सुंदर", "धन्यवाद"}),
 			wantErr: false,
+		},
+		{
+			name:    "Given a Lexicon with some words, when Lookup is invoked for nil words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{words: nil},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "Given a Lexicon with some words, when Lookup is invoked for empty words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{words: []string{}},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 
@@ -131,13 +144,11 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 				t.Errorf("LexiconWithDB.Lookup() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LexiconWithDB.Lookup() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-
 }
 
 func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
@@ -160,37 +171,52 @@ func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    map[string][]string
+		want    *map[string][]string
 		wantErr bool
 	}{
 		{
 			name:   "Given a Lexicon with some words, when SearchStartsWith is invoked for existing word, then return all the words starting with the substring sorted lexicographically",
 			fields: fields{db: db},
 			args:   args{substrings: []string{"न"}},
-			want: map[string][]string{
+			want: &(map[string][]string{
 				"न": {"नमस्कार", "नमस्ते"},
-			},
+			}),
 			wantErr: false,
 		},
 		{
 			name:    "Given a Lexicon with some words, when SearchStartsWith is invoked for non-existing word, then return no response for the substring",
 			fields:  fields{db: db},
 			args:    args{substrings: []string{"क्र"}},
-			want:    make(map[string][]string, 0),
+			want:    &map[string][]string{},
 			wantErr: false,
 		},
 		{
 			name:   "Given a Lexicon with some words, when SearchStartsWith is invoked for mix of existing & non existing word, then return all the words starting with the existing words mapped to correct key sorted lexicographically while non existing words have no entry",
 			fields: fields{db: db},
 			args:   args{substrings: []string{"नम", "somethingelse", "नमस्", "धन्य"}},
-			want: map[string][]string{
+			want: &(map[string][]string{
 				"नम":   {"नमस्कार", "नमस्ते"},
 				"नमस्": {"नमस्कार", "नमस्ते"},
 				"धन्य": {"धन्यवाद"},
-			},
+			}),
 			wantErr: false,
 		},
+		{
+			name:    "Given a Lexicon with some words, when SearchStartsWith is invoked for nil words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{substrings: nil},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "Given a Lexicon with some words, when SearchStartsWith is invoked for empty words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{substrings: []string{}},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lxc := &LexiconWithDB{
@@ -226,37 +252,52 @@ func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    map[string][]string
+		want    *map[string][]string
 		wantErr bool
 	}{
 		{
 			name:   "Given a Lexicon with some words, when SearchEndsWith is invoked for existing word, then return all the words ending with the substring sorted lexicographically",
 			fields: fields{db: db},
 			args:   args{substrings: []string{"र"}},
-			want: map[string][]string{
+			want: &(map[string][]string{
 				"र": {"नमस्कार", "सुंदर"},
-			},
+			}),
 			wantErr: false,
 		},
 		{
 			name:    "Given a Lexicon with some words, when SearchEndsWith is invoked for non-existing word, then return no response for the substring",
 			fields:  fields{db: db},
 			args:    args{substrings: []string{"क्र"}},
-			want:    make(map[string][]string, 0),
+			want:    &map[string][]string{},
 			wantErr: false,
 		},
 		{
 			name:   "Given a Lexicon with some words, when SearchEndsWith is invoked for mix of existing & non existing word, then return all the words ending with the existing words mapped to correct key sorted lexicographically while non existing words have no entry",
 			fields: fields{db: db},
 			args:   args{substrings: []string{"र", "somethingelse", "क्ष", "वाद"}},
-			want: map[string][]string{
+			want: &(map[string][]string{
 				"र":   {"नमस्कार", "सुंदर"},
 				"क्ष": {"मोक्ष"},
 				"वाद": {"धन्यवाद"},
-			},
+			}),
 			wantErr: false,
 		},
+		{
+			name:    "Given a Lexicon with some words, when SearchEndsWith is invoked for nil words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{substrings: nil},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "Given a Lexicon with some words, when SearchEndsWith is invoked for empty words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{substrings: []string{}},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lxc := &LexiconWithDB{
@@ -312,7 +353,20 @@ func TestLexiconWithDB_Add(t *testing.T) {
 			args:    args{words: []string{"नमस्कार"}},
 			wantErr: true,
 		},
+		{
+			name:    "Given a Lexicon with some words, when Add is invoked for nil words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{words: nil},
+			wantErr: true,
+		},
+		{
+			name:    "Given a Lexicon with some words, when Add is invoked for empty words array, then error is expected",
+			fields:  fields{db: db},
+			args:    args{words: []string{}},
+			wantErr: true,
+		},
 	}
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lxc := &LexiconWithDB{
