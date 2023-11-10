@@ -9,7 +9,7 @@ import (
 	"os"
 
 	lexicondb "github.com/vinaygaykar/cool-lexicon/internal/lexicon"
-	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
+	"github.com/vinaygaykar/cool-lexicon/lexicon/pkg"
 )
 
 // A Config holds config values required for this project.

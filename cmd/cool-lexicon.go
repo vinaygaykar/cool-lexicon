@@ -10,7 +10,7 @@ import (
 
 	"github.com/vinaygaykar/cool-lexicon/configs"
 	"github.com/vinaygaykar/cool-lexicon/configs/io"
-	"github.com/vinaygaykar/cool-lexicon/pkg/lexicon"
+	"github.com/vinaygaykar/cool-lexicon/lexicon/pkg"
 )
 
 // A ProgramInput holds all the input values provided to the program.
