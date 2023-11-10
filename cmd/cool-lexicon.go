@@ -99,69 +99,61 @@ func validateInputs() {
 
 func tryOperateExists(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opLookup)
-	if err != nil {
-		if errors.Is(io.ErrNoInputValue, err) {
-			return // this operation was not selected
-		} else {
-			log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
-		}
+	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
+		return // this operation was not selected
+	} else if err != nil {
+		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	}
 
-	if response, err := lxc.Lookup(words...); err != nil {
-		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
+	if response, err := lxc.Lookup(words...); err == nil {
+		outputPrinter.ConsumeWords("lookup", response)
 	} else {
-		log.Println("exists result: ")
-		outputPrinter.ConsumeBool("lookup", response, false)
+		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	}
 }
 
 func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opSearchStartingWith)
-	if err != nil {
-		if errors.Is(io.ErrNoInputValue, err) {
-			return // this operation was not selected
-		} else {
-			log.Printf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
-		}
+	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
+		return // this operation was not selected
+	} else if err != nil {
+		log.Printf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
 	}
 
-	if searches, err := lxc.GetAllWordsStartingWith(words...); err != nil {
-		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
+	if searches, err := lxc.GetAllWordsStartingWith(words...); err == nil {
+		outputPrinter.ConsumeMapOfWords("search starts with", searches)
 	} else {
-		fmt.Printf("search starts with (%s) : %v\n", args.opSearchStartingWith, searches)
+		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
 	}
 }
 
 func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opSearchEndingWith)
-	if err != nil {
-		if errors.Is(io.ErrNoInputValue, err) {
-			return // this operation was not selected
-		} else {
-			log.Printf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
-		}
+	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
+		return // this operation was not selected
+	} else if err != nil {
+		log.Printf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
 	}
 
-	if searches, err := lxc.GetAllWordsEndingWith(words...); err != nil {
-		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
+
+	if searches, err := lxc.GetAllWordsEndingWith(words...); err == nil {
+		outputPrinter.ConsumeMapOfWords("search ends with", searches)
 	} else {
-		fmt.Printf("search ends with (%s) : %v\n", args.opSearchEndingWith, searches)
+		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
 	}
 }
 
 func tryOperateAddAll(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opAdd)
-	if err != nil {
-		if errors.Is(io.ErrNoInputValue, err) {
-			return // this operation was not selected
-		} else {
-			log.Printf("could not perform 'add words' for input (%s), error: %s\n", args.opAdd, err.Error())
-		}
+	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
+		return // this operation was not selected
+	} else if err != nil {
+		log.Printf("could not perform 'add' for input (%s), error: %s\n", args.opAdd, err.Error())
 	}
 
 	if err = lxc.Add(words...); err != nil {
-		log.Fatalf("could not perform 'add words' from file (%s), error: %s\n", args.opAdd, err.Error())
+		log.Fatalf("could not perform 'add' from file (%s), error: %s\n", args.opAdd, err.Error())
 	} else {
-		fmt.Printf("added words from the file (%s)\n", args.opAdd)
+		fmt.Println("add operation completed")
 	}
 }

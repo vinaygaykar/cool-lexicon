@@ -17,10 +17,8 @@ var (
 type SupplyInput interface {
 	// Get returns array of strings which represent input words for the lexicon operation.
 	// `rawValue` is the unprocessed input value as recieved from the user interface/terminal.
-	// If rawValue is empty or blank, then error ErrNoInputValue is returned with empty array.
-	// If error is encountered while parsing rawValue, nil array with error response is returned.
-	// If error is present along with array response, it should indicate that the array response is
-	// not to be used and instead error should be dealt with.
+	// If `rawValue` is empty or blank, then error ErrNoInputValue is returned with empty array.
+	// If error is encountered while parsing `rawValue`, nil array with error response is returned.
 	Get(rawValue string) ([]string, error)
 }
 
