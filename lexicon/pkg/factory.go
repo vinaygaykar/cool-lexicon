@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/vinaygaykar/cool-lexicon/utils"
 	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/mysql"
+	"github.com/vinaygaykar/cool-lexicon/utils"
 )
 
 // GetInstance returns an instance of Lexicon object configured using properties as described in configFileLoc.
