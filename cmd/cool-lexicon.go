@@ -18,7 +18,7 @@ type ProgramArgs struct {
 	configFile               string // Location of the config file
 	shouldPerformSetupChecks bool   // true if setup checks should be performed
 	isFileBasedInput         bool   // true if the input should be read from the given file instead of the command line
-	outputFolderPath         string   // true if the output should be printed to file instead of the command line
+	outputFolderPath         string // true if the output should be printed to file instead of the command line
 
 	opLookup             string // value of the LOOKUP operation, if `isFileBasedInput` is true then this is file location else this is a word to operate on
 	opSearchStartingWith string // value of the SEARCH START WITH operation, if `isFileBasedInput` is true then this is file location else this is a word to operate on
@@ -58,10 +58,11 @@ func main() {
 	if len(args.outputFolderPath) == 0 {
 		outputPrinter = &io.ConsumeOutputToLog{}
 	} else {
-		outputPrinter = &io.ConsumeOutputToFile{ OutputFolderPath: args.outputFolderPath }
+		outputPrinter = &io.ConsumeOutputToFile{OutputFolderPath: args.outputFolderPath}
 	}
 
-	lxc := configs.GetLexicon(args.configFile, args.shouldPerformSetupChecks)
+	cfg := configs.ReadConfigs(args.configFile)
+	lxc := lexicon.GetInstance(args.shouldPerformSetupChecks, cfg)
 	defer lxc.Close()
 
 	tryOperateExists(lxc)
@@ -134,7 +135,6 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	} else if err != nil {
 		log.Printf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
 	}
-
 
 	if searches, err := lxc.GetAllWordsEndingWith(words...); err == nil {
 		outputPrinter.ConsumeMapOfWords("search ends with", searches)
