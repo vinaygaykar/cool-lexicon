@@ -75,7 +75,7 @@ There are some requirements,
   - Program should have access to the output location
   - Once the `-of` flag is used output for all operations is streamed to file
 
-**NOTE** : Add operation has output 
+**NOTE** : Add operation has no output 
 
 
 ### 1. Check if a word exists
