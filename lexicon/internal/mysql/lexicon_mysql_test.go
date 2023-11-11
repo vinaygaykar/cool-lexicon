@@ -3,24 +3,25 @@
 package lexicon
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
+	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+
+	"context"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
 )
 
 const (
-	mysqlImage = "mysql:8"
-	dbName     = "lexicons"
-	dbUserName = "root"
-	dbPassword = "toor"
-	tableName  = "lexicon"
+	mysqlImage    = "mysql:8"
+	dbName        = "lexicons"
+	dbUserName    = "root"
+	dbPassword    = "toor"
+	testTableName = "lexicon"
 )
 
 var randomWordsInsertedInDBOnInit = [...]string{"नमस्ते", "धन्यवाद", "नमस्कार", "सुंदर", "मोक्ष"}
@@ -49,8 +50,8 @@ func getDB(ctx *context.Context) (*sql.DB, func()) {
 
 	// Add initial words to DB
 	db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", dbName))
-	db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (word))", tableName))
-	query := fmt.Sprintf("INSERT INTO %s VALUES (?)", tableName)
+	db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (word))", testTableName))
+	query := fmt.Sprintf("INSERT INTO %s VALUES (?)", testTableName)
 
 	for _, word := range randomWordsInsertedInDBOnInit {
 		if _, err := db.Exec(query, word); err != nil {
@@ -134,7 +135,7 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lxc := &LexiconWithDB{
+			lxc := &LexiconMySQL{
 				db: tt.fields.db,
 			}
 
@@ -216,10 +217,10 @@ func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lxc := &LexiconWithDB{
+			lxc := &LexiconMySQL{
 				db: tt.fields.db,
 			}
 			got, err := lxc.GetAllWordsStartingWith(tt.args.substrings...)
@@ -297,10 +298,10 @@ func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lxc := &LexiconWithDB{
+			lxc := &LexiconMySQL{
 				db: tt.fields.db,
 			}
 			got, err := lxc.GetAllWordsEndingWith(tt.args.substrings...)
@@ -366,10 +367,10 @@ func TestLexiconWithDB_Add(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lxc := &LexiconWithDB{
+			lxc := &LexiconMySQL{
 				db: tt.fields.db,
 			}
 			if err := lxc.Add(tt.args.words...); (err != nil) != tt.wantErr {

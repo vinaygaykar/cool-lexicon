@@ -11,30 +11,34 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const (
+	tableName = "lexicon"
+)
+
 var (
 	errNilOrEmptyWords = errors.New("list of words is nil or empty")
 )
 
-const TABLE_NAME = "lexicon"
-
-func Open(db *sql.DB) *LexiconWithDB {
+// Open returns an instance of LexiconMySQL
+func Open(db *sql.DB) *LexiconMySQL {
 	if db == nil {
 		log.Panicln("database value is nil")
 	}
 
-	return &LexiconWithDB{db: db}
+	return &LexiconMySQL{db: db}
 }
 
-type LexiconWithDB struct {
+// LexiconMySQL provides implementation of lexicon/pkg/Lexicon with MySQL as backend.
+type LexiconMySQL struct {
 	db *sql.DB
 }
 
-func (lxc *LexiconWithDB) Lookup(words ...string) (*[]string, error) {
+func (lxc *LexiconMySQL) Lookup(words ...string) (*[]string, error) {
 	if len(words) == 0 {
 		return nil, errNilOrEmptyWords
 	}
 
-	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", TABLE_NAME)
+	query := fmt.Sprintf("SELECT EXISTS (SELECT l.word FROM %s l WHERE l.word LIKE ?)", tableName)
 	exists := make([]string, 0)
 
 	for _, word := range words {
@@ -48,7 +52,7 @@ func (lxc *LexiconWithDB) Lookup(words ...string) (*[]string, error) {
 	return &exists, nil
 }
 
-func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (*map[string][]string, error) {
+func (lxc *LexiconMySQL) GetAllWordsStartingWith(substrings ...string) (*map[string][]string, error) {
 	if len(substrings) == 0 {
 		return nil, errNilOrEmptyWords
 	}
@@ -65,7 +69,7 @@ func (lxc *LexiconWithDB) GetAllWordsStartingWith(substrings ...string) (*map[st
 	return &result, nil
 }
 
-func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (*map[string][]string, error) {
+func (lxc *LexiconMySQL) GetAllWordsEndingWith(substrings ...string) (*map[string][]string, error) {
 	if len(substrings) == 0 {
 		return nil, errNilOrEmptyWords
 	}
@@ -82,9 +86,9 @@ func (lxc *LexiconWithDB) GetAllWordsEndingWith(substrings ...string) (*map[stri
 	return &result, nil
 }
 
-func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
+func (lxc *LexiconMySQL) searchSubString(toSearch string) ([]string, error) {
 	words := make([]string, 0)
-	query := fmt.Sprintf("SELECT l.word FROM %s l WHERE l.word LIKE ?", TABLE_NAME)
+	query := fmt.Sprintf("SELECT l.word FROM %s l WHERE l.word LIKE ?", tableName)
 
 	res, err := lxc.db.Query(query, toSearch)
 	if err != nil {
@@ -104,12 +108,12 @@ func (lxc *LexiconWithDB) searchSubString(toSearch string) ([]string, error) {
 	return words, nil
 }
 
-func (lxc *LexiconWithDB) Add(words ...string) error {
+func (lxc *LexiconMySQL) Add(words ...string) error {
 	if len(words) == 0 {
 		return errNilOrEmptyWords
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s VALUES ", TABLE_NAME)
+	query := fmt.Sprintf("INSERT INTO %s VALUES ", tableName)
 	vals := []interface{}{}
 	for _, w := range words {
 		query += "(?), "
@@ -130,6 +134,6 @@ func (lxc *LexiconWithDB) Add(words ...string) error {
 	return nil
 }
 
-func (lxc *LexiconWithDB) Close() {
+func (lxc *LexiconMySQL) Close() {
 	defer lxc.db.Close()
 }
