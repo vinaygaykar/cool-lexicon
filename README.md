@@ -50,7 +50,7 @@ The limitation to this is that only one word can be given as input to one operat
 2. **File** : Using the words from the provided text file path. Use the `-if` flag to indicate this option. 
 In the following example the operation exists uses the file `./path-to/file1.txt` and add uses `./file2.txt` as input, given the file exists.
 ```console
-  ./lxc -ex ./path-to/file.txt -ad ./file2.txt
+  ./lxc -if -ex ./path-to/file.txt -ad ./file2.txt
 ```
 There are some requirements, 
   - File should exists at given place and is a valid text file
