@@ -31,3 +31,4 @@ jobs:
         goversion: "1.20"
         project_path: "./cmd"
         extra_files: LICENSE README.md
+        binary_name: "lxc"

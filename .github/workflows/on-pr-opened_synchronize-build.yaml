@@ -27,4 +27,4 @@ jobs:
       run: go test --timeout ${{ vars.GO_TEST_TIMEOUT }} -v ./...
 
     - name: build
-      run: go build -v ./cmd/main.go
+      run: go build -v ./cmd/main.go -o lxc

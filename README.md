@@ -32,7 +32,7 @@ operation if required. Any failures here would need manual intervention.
 
 Usage
 ```console
-  ./cool-lexicon -check -ex नमस्कार
+  ./lxc -check -ex नमस्कार
 ```
 
 #### 0.2 File based & CLI inputs
@@ -42,7 +42,7 @@ Inputs can be given from following sources for all provided operations.
 1. **CLI** : (Default) Using the word directly from the terminal. 
 In the following example the operation exists uses `नमस्कार` and operation add uses `धन्यवाद` as input word.
 ```console
-  ./cool-lexicon -ex नमस्कार -ad धन्यवाद
+  ./lxc -ex नमस्कार -ad धन्यवाद
 ```
 The limitation to this is that only one word can be given as input to one operation.
 
@@ -50,7 +50,7 @@ The limitation to this is that only one word can be given as input to one operat
 2. **File** : Using the words from the provided text file path. Use the `-if` flag to indicate this option. 
 In the following example the operation exists uses the file `./path-to/file1.txt` and add uses `./file2.txt` as input, given the file exists.
 ```console
-  ./cool-lexicon -ex ./path-to/file.txt -ad ./file2.txt
+  ./lxc -ex ./path-to/file.txt -ad ./file2.txt
 ```
 There are some requirements, 
   - File should exists at given place and is a valid text file
@@ -67,7 +67,7 @@ Output can be streamed to either of the places for _all the operations_.
 2. **File** : Writing output of every sepcified operation to individual files at provided location. Use the `-of` flag and provided expected location of the output.
 In the following example, output of both the operations will be written to `./output-path` location under different file for each operation.
 ```console
-  ./cool-lexicon -of ./output-path -ex नमस्कार -ad धन्यवाद
+  ./lxc -of ./output-path -ex नमस्कार -ad धन्यवाद
 ```
 There are some requirements,
   - Output folder should exists
@@ -82,7 +82,7 @@ As a user, you can check if a given word exists in the lexicon by using the `-ex
 
 Usage
 ```console
-  ./cool-lexicon -ex नमस्कार
+  ./lxc -ex नमस्कार
 ```
 
 
@@ -92,7 +92,7 @@ As a user, you can retrieve a list of words that start with a given substring us
 
 Usage
 ```console
-  ./cool-lexicon -ss नम
+  ./lxc -ss नम
 ```
 
 
@@ -102,7 +102,7 @@ As a user, you can find words that end with a specific substring, use the `-se` 
 
 Usage
 ```console
-  ./cool-lexicon -se कार
+  ./lxc -se कार
 ```
 
 
@@ -112,7 +112,7 @@ As a user, you can add new words to the lexicon using the `-ad` operation.
 
 Usage
 ```console
-  ./cool-lexicon -ad धन्यवाद
+  ./lxc -ad धन्यवाद
 ```
 
 
@@ -139,7 +139,7 @@ To get started with the Lexicon project, follow these steps:
 
 To create and run a binary:
 
-- Run `go build ./cmd/main.go`, this will create a executable named `cool-lexicon` depending upon your os & arch.
+- Run `go build ./cmd/main.go -o lxc`, this will create a executable named `lxc` depending upon your os & arch.
 - Make sure MySQL is running
 - Make sure the config file `config.json` is present at same level as that of the executable and has valid & working db connection values
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations
@@ -153,7 +153,7 @@ To create and run a binary:
 - To provide different configs use the `-cfg` flag and pass new config file location. Usage
 
   ```console
-    ./cool-lexicon -cfg location/to/diffent/config.json
+    ./lxc -cfg location/to/diffent/config.json
   ```
 
 
