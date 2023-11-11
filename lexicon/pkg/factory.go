@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/vinaygaykar/cool-lexicon/utils"
 	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/mysql"
+	"github.com/vinaygaykar/cool-lexicon/utils"
 )
 
 // GetInstance returns an instance of Lexicon object configured using properties as described in configFileLoc.
@@ -15,7 +15,7 @@ import (
 // If system is setup is incorrectly then it will "try" to correct the setup or end up panicking. This field
 // is useful during troubleshooting and should only be set once during first run, on later runs if this value
 // is set it won't cause any harm but might slow down the operations.
-func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.LexiconWithDB {
+func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.LexiconMySQL {
 	if cfg == nil {
 		log.Panic("config is nil")
 	}
