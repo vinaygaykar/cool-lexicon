@@ -23,4 +23,5 @@ go.work
 *.txt
 
 # executable created from `go build ./cmd`
-cool-lexicon
+lxc
+main

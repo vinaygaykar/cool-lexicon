@@ -139,7 +139,7 @@ To get started with the Lexicon project, follow these steps:
 
 To create and run a binary:
 
-- Run `go build ./cmd/main.go -o lxc`, this will create a executable named `lxc` depending upon your os & arch.
+- Run `go build -o lxc ./cmd/main.go `, this will create a executable named `lxc` depending upon your os & arch.
 - Make sure MySQL is running
 - Make sure the config file `config.json` is present at same level as that of the executable and has valid & working db connection values
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations
