@@ -25,4 +25,4 @@ jobs:
       run: go test --timeout ${{ vars.GO_TEST_TIMEOUT }} -v ./...
 
     - name: build
-      run: go build -v -o lxc ./cmd/main.go
+      run: go build -v -o ${{ vars.COOL_LEXICON_BINARY_NAME }} ./cmd/main.go
