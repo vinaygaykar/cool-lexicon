@@ -65,10 +65,10 @@ func main() {
 	lxc := lexicon.GetInstance(args.shouldPerformSetupChecks, cfg)
 	defer lxc.Close()
 
-	tryOperateExists(lxc)
+	tryOperateLookup(lxc)
 	tryOperateGetAllStartingWith(lxc)
 	tryOperateGetAllEndingWith(lxc)
-	tryOperateAddAll(lxc)
+	tryOperateAdd(lxc)
 }
 
 func sanitizeInputs() {
@@ -98,7 +98,7 @@ func validateInputs() {
 	}
 }
 
-func tryOperateExists(lxc lexicon.Lexicon) {
+func tryOperateLookup(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opLookup)
 	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
 		return // this operation was not selected
@@ -143,7 +143,7 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	}
 }
 
-func tryOperateAddAll(lxc lexicon.Lexicon) {
+func tryOperateAdd(lxc lexicon.Lexicon) {
 	words, err := wordSupplier.Get(args.opAdd)
 	if len(words) == 0 || errors.Is(io.ErrNoInputValue, err) {
 		return // this operation was not selected
