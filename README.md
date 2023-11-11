@@ -67,13 +67,15 @@ Output can be streamed to either of the places for _all the operations_.
 2. **File** : Writing output of every sepcified operation to individual files at provided location. Use the `-of` flag and provided expected location of the output.
 In the following example, output of both the operations will be written to `./output-path` location under different file for each operation.
 ```console
-  ./lxc -of ./output-path -ex नमस्कार -ad धन्यवाद
+  ./lxc -of ./output-path -ex नमस्कार -se धन्य
 ```
 There are some requirements,
   - Output folder should exists
   - If file exists at the output location with name of the operation then it will be overwritten
   - Program should have access to the output location
   - Once the `-of` flag is used output for all operations is streamed to file
+
+**NOTE** : Add operation has output 
 
 
 ### 1. Check if a word exists
@@ -139,7 +141,7 @@ To get started with the Lexicon project, follow these steps:
 
 To create and run a binary:
 
-- Run `go build -o lxc ./cmd/main.go `, this will create a executable named `lxc` depending upon your os & arch.
+- Run `go build -o lxc ./cmd/main.go`, this will create a executable named `lxc` depending upon your os & arch.
 - Make sure MySQL is running
 - Make sure the config file `config.json` is present at same level as that of the executable and has valid & working db connection values
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations

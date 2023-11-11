@@ -2,7 +2,6 @@ package io
 
 import (
 	"encoding/json"
-	// "fmt"
 	"log"
 	"os"
 	"strings"
@@ -41,14 +40,17 @@ func (co *ConsumeOutputToFile) ConsumeWords(operation string, output *[]string) 
 	var sb strings.Builder
 	for _, word := range *output {
 		sb.WriteString(word)
-		sb.WriteRune('\n')
 	}
 
-	os.WriteFile(co.OutputFolderPath+"/"+operation+".txt", []byte(sb.String()), 0644)
+	path := co.OutputFolderPath+"/"+operation+".txt"
+	log.Printf("result of %s : %s\n", operation, path)
+	os.WriteFile(path, []byte(sb.String()), 0644)
 }
 
 func (co *ConsumeOutputToFile) ConsumeMapOfWords(operation string, output *map[string][]string) {
 	if jsonString, err := json.Marshal(output); err == nil {
-		os.WriteFile(co.OutputFolderPath+"/"+operation+".txt", jsonString, 0644)
+		path := co.OutputFolderPath+"/"+operation+".txt"
+		log.Printf("result of %s : %s\n", operation, path)
+		os.WriteFile(path, jsonString, 0644)
 	}
 }

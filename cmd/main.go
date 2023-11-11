@@ -110,7 +110,7 @@ func tryOperateLookup(lxc lexicon.Lexicon) {
 	}
 
 	if response, err := lxc.Lookup(words...); err == nil {
-		outputPrinter.ConsumeWords("lookup", response)
+		outputPrinter.ConsumeWords("ex", response)
 	} else {
 		log.Printf("could not perform 'exists' for input (%s), error: %s\n", args.opLookup, err.Error())
 	}
@@ -125,7 +125,7 @@ func tryOperateGetAllStartingWith(lxc lexicon.Lexicon) {
 	}
 
 	if searches, err := lxc.GetAllWordsStartingWith(words...); err == nil {
-		outputPrinter.ConsumeMapOfWords("search starts with", searches)
+		outputPrinter.ConsumeMapOfWords("ss", searches)
 	} else {
 		log.Fatalf("could not perform 'search starts with' for input (%s), error: %s\n", args.opSearchStartingWith, err.Error())
 	}
@@ -140,7 +140,7 @@ func tryOperateGetAllEndingWith(lxc lexicon.Lexicon) {
 	}
 
 	if searches, err := lxc.GetAllWordsEndingWith(words...); err == nil {
-		outputPrinter.ConsumeMapOfWords("search ends with", searches)
+		outputPrinter.ConsumeMapOfWords("se", searches)
 	} else {
 		log.Fatalf("could not perform 'search ends with' for input (%s), error: %s\n", args.opSearchEndingWith, err.Error())
 	}

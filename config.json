@@ -1,8 +1,8 @@
 {
     "type": "mysql",
     "host": "localhost",
-    "username": "",
-    "password": "",
+    "username": "root",
+    "password": "toor",
     "port": 3306,
     "database": "lexicons"
 }
