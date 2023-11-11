@@ -6,7 +6,6 @@ package lexicon
 // Like dictionary, various operation such as search or add can be performed on a Lexicon.
 // A word is just a string in golang terms.
 type Lexicon interface {
-
 	// Lookup checks existence of the given words.
 	// It returns array of strings of all the words that exists within the lexicon.
 	// If any error occurs then it is returned; nil or empty words will return error.

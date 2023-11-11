@@ -26,6 +26,48 @@ Usage
   ./cool-lexicon -check -ex word-to-search
 ```
 
+#### 0.1 File based & CLI inputs
+
+Inputs can be given from following sources for all provided operations.
+
+1. **CLI** : (Default) Using the word directly from the terminal. 
+In the following example the operation exists uses `नमस्कार` and operation add uses `धन्यवाद` as input word.
+```console
+  ./cool-lexicon -ex नमस्कार -ad धन्यवाद
+```
+The limitation to this is that only one word can be given as input to one operation.
+
+
+2. **File** : Using the words from the provided text file path. Use the `-if` flag to indicate this option. 
+In the following example the operation exists uses the file `./path-to/file1.txt` and add uses `./file2.txt` as input, given the file exists.
+```console
+  ./cool-lexicon -ex ./path-to/file.txt -ad ./file2.txt
+```
+There are some requirements, 
+  a. File should exists at given place and is a valid text file
+  b. File should have required access to be read by the program
+  c. Words are space delimited and a line should not be more than 64K characters long
+  d. Once the `-if` flag is used input for all operations is streamed from file
+
+#### 0.2 File base & CLI output
+
+Output can be streamed to either of the places for _all the operations_.
+
+1. **CLI** : (Default) Using terminal to display result of every operation.
+
+2. **File** : Writing output of every sepcified operation to individual files at provided location. Use the `-of` flag and provided expected location of the output.
+In the following example, output of both the operations will be written to `./output-path` location under different file for each operation.
+```console
+  ./cool-lexicon -of ./output-path -ex नमस्कार -ad धन्यवाद
+```
+There are some requirements,
+  a. Output folder should exists
+  b. If file exists at the output location with name of the operation then it will be overwritten
+  c. Program should have access to the output location
+  d. Once the `-of` flag is used output for all operations is streamed to file
+
+
+
 ### 1. Check if a word exists
 
 As a user, you can check if a given word exists in the lexicon by using the `-ex` operation. 
@@ -72,7 +114,7 @@ To get started with the Lexicon project, follow these steps:
 - Install the required dependencies
   `go get`
 
-- Set up the MySQL database server, make sure you have MySQL installed and running (Using docker will be less of a headache)
+- Set up the MySQL database server, make sure you have MySQL installed and running (Using docker will be less hassle)
 
 - Configure the database connection in the `config.json` file, make sure the file is present at root level of the project
 
@@ -87,6 +129,7 @@ To create and run a binary:
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations
 
 ## Troubleshooting
+
 - If you encounter any issues with the database setup, ensure that the database is correctly configured and that you have the necessary privileges.
 
 - To provide different configs use the `-cfg` flag and pass new config file location. Usage

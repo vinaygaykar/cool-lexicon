@@ -1,5 +1,3 @@
-// Package lexicon provides implementation for the `pkg/lexicon.Lexicon` interface.
-// It uses MySQL to store state or words of the Lexicon.
 package lexicon
 
 import (
