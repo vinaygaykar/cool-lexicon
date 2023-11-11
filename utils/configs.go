@@ -8,7 +8,7 @@ import (
 )
 
 // A Config holds config values required for this project.
-// values are populated from `cool-lexicon-cfg.json` config file as default, unless another file
+// Values are populated from `config.json` config file as default, unless another file
 // is explicitly provided.
 // A zero value config is useless and will be reported invalid during validation phase.
 type Configs struct {
@@ -32,11 +32,11 @@ type Configs struct {
 	Database string `json:"database"`
 }
 
-func ReadConfigs(configFileLoc string) *Configs {
+func ReadConfigs(filePath string) *Configs {
 	cfg := Configs{}
 
 	// read config file into `cfg` object
-	file, _ := os.Open(configFileLoc)
+	file, _ := os.Open(filePath)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&cfg); err != nil {

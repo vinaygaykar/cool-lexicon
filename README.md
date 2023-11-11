@@ -74,7 +74,7 @@ To get started with the Lexicon project, follow these steps:
 
 - Set up the MySQL database server, make sure you have MySQL installed and running (Using docker will be less of a headache)
 
-- Configure the database connection in the `cool-lexicon-cfg.json` file, make sure the file is present at root level of the project
+- Configure the database connection in the `config.json` file, make sure the file is present at root level of the project
 
 - Run the application.
   `go run main.go`
@@ -83,7 +83,7 @@ To create and run a binary:
 
 - Run `go build ./cmd/cool-lexicon.go`, this will create a executable named `cool-lexicon` depending upon your os & arch.
 - Make sure MySQL is running
-- Make sure the config file `cool-lexicon-cfg.json` is present at same level as that of the executable and has valid & working db connection values
+- Make sure the config file `config.json` is present at same level as that of the executable and has valid & working db connection values
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations
 
 ## Troubleshooting

@@ -8,14 +8,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vinaygaykar/cool-lexicon/configs"
-	"github.com/vinaygaykar/cool-lexicon/configs/io"
+	"github.com/vinaygaykar/cool-lexicon/utils"
+	"github.com/vinaygaykar/cool-lexicon/utils/io"
 	"github.com/vinaygaykar/cool-lexicon/lexicon/pkg"
 )
 
 // A ProgramInput holds all the input values provided to the program.
 type ProgramArgs struct {
-	configFile               string // Location of the config file
+	configFilePath               string // Location of the config file
 	shouldPerformSetupChecks bool   // true if setup checks should be performed
 	isFileBasedInput         bool   // true if the input should be read from the given file instead of the command line
 	outputFolderPath         string // true if the output should be printed to file instead of the command line
@@ -34,9 +34,12 @@ var (
 
 func init() {
 	flag.BoolVar(&args.shouldPerformSetupChecks, "check", false, "Setup all necessary configs if required. This is optional, if the all configs are already setup correctly this operation will have no effect")
+	
 	flag.BoolVar(&args.isFileBasedInput, "if", false, "This flag indicates that input words to every operation should be taken from the file passed as value to individual operation")
 	flag.StringVar(&args.outputFolderPath, "of", "", "This flag indicates that output to every operation should be printed to files (created for every operation) at given path")
-	flag.StringVar(&args.configFile, "cfg", "cool-lexicon-cfg.json", "Config file location")
+	
+	flag.StringVar(&args.configFilePath, "cfg", "config.json", "Config file location")
+	
 	flag.StringVar(&args.opLookup, "ex", "", "Check if the given word exist")
 	flag.StringVar(&args.opSearchStartingWith, "ss", "", "Search the lexicon to find words that start with given substring")
 	flag.StringVar(&args.opSearchEndingWith, "se", "", "Search the lexicon to find words that end with given substring")
@@ -61,7 +64,7 @@ func main() {
 		outputPrinter = &io.ConsumeOutputToFile{OutputFolderPath: args.outputFolderPath}
 	}
 
-	cfg := configs.ReadConfigs(args.configFile)
+	cfg := configs.ReadConfigs(args.configFilePath)
 	lxc := lexicon.GetInstance(args.shouldPerformSetupChecks, cfg)
 	defer lxc.Close()
 
@@ -73,7 +76,7 @@ func main() {
 
 func sanitizeInputs() {
 	// remove any whitespaces
-	args.configFile = strings.TrimSpace(args.configFile)
+	args.configFilePath = strings.TrimSpace(args.configFilePath)
 	args.opLookup = strings.TrimSpace(args.opLookup)
 	args.opSearchStartingWith = strings.TrimSpace(args.opSearchStartingWith)
 	args.opSearchEndingWith = strings.TrimSpace(args.opSearchEndingWith)
@@ -82,13 +85,13 @@ func sanitizeInputs() {
 }
 
 func validateInputs() {
-	if len(args.configFile) == 0 {
+	if len(args.configFilePath) == 0 {
 		// config file location string must be present; default file location string is provided to `flag`
 		log.Panic("config file location not provided")
 	}
 
 	// config file location string is there but is the location valid
-	if _, err := os.Stat(args.configFile); err != nil {
+	if _, err := os.Stat(args.configFilePath); err != nil {
 		log.Panic(err.Error())
 	}
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/vinaygaykar/cool-lexicon/configs"
+	"github.com/vinaygaykar/cool-lexicon/utils"
 	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/mysql"
 )
 
