@@ -28,7 +28,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        goversion: "1.20"
+        goversion: "${{ vars.GO_VERSION }}"
         project_path: "./cmd"
         extra_files: LICENSE README.md
-        binary_name: "lxc"
+        binary_name: "${{ vars.COOL_LEXICON_BINARY_NAME }}"
