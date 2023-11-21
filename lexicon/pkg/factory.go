@@ -7,6 +7,9 @@ import (
 
 	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/mysql"
 	"github.com/vinaygaykar/cool-lexicon/utils"
+
+	_ "github.com/libsql/libsql-client-go/libsql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // GetInstance returns an instance of Lexicon object configured using properties as described in configFileLoc.
@@ -24,7 +27,17 @@ func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.Le
 		performSetupChecks(cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
 	}
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database))
+	var driver string
+	var url string
+	if cfg.Dbtype == "libsql" {
+		driver = "libsql"
+		url = "http://127.0.0.1:8080"
+	} else {
+		driver = "mysq"
+		url = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+	}
+
+	db, err := sql.Open(driver, url)
 	if err != nil {
 		log.Panic(err.Error())
 	}
@@ -59,6 +72,5 @@ func performSetupChecks(username, password, host string, port int, database stri
 		log.Panic(err.Error())
 	}
 
-	log.Println("DB checks comlpeted")
 	log.Println("All checks completed")
 }
