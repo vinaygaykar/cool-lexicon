@@ -13,7 +13,7 @@ import (
 // A zero value config is useless and will be reported invalid during validation phase.
 type Configs struct {
 
-	// Dbtype mentions type of DB server used. Optional as currently only MySQL is supported.
+	// Dbtype mentions type of DB server used.
 	Dbtype string `json:"type"`
 
 	// Host address of the database
