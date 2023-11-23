@@ -37,7 +37,7 @@ func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.Le
 		if shouldPerformSetupCheck {
 			performSetupChecksMySQL(url, cfg.Database)
 		}
-		url += "/" + cfg.Database
+		url += "/" + cfg.Database // Connect directly to the DB for MySQL
 	} else {
 		log.Panicln("invalid db type provided in the configs")
 	}
