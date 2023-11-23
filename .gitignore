@@ -25,3 +25,6 @@ go.work
 # executable created from `go build ./cmd`
 lxc
 main
+
+# custom util files
+*switcheroo.sh

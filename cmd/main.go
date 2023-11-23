@@ -65,6 +65,10 @@ func main() {
 	}
 
 	cfg := configs.ReadConfigs(args.configFilePath)
+	if args.shouldPerformSetupChecks {
+		lexicon.VerifyDB(cfg)
+	}
+
 	lxc := lexicon.GetInstance(args.shouldPerformSetupChecks, cfg)
 	defer lxc.Close()
 
@@ -95,8 +99,12 @@ func validateInputs() {
 		log.Panic(err.Error())
 	}
 
-	if len(args.opLookup) == 0 && len(args.opSearchStartingWith) == 0 && len(args.opSearchEndingWith) == 0 && len(args.opAdd) == 0 {
-		flag.PrintDefaults()
+	if !args.shouldPerformSetupChecks && // not performing checks
+		len(args.opLookup) == 0 && // not performing lookup
+		len(args.opSearchStartingWith) == 0 && // not performing search starts
+		len(args.opSearchEndingWith) == 0 && // not performing search end
+		len(args.opAdd) == 0 { // not performing add
+		flag.PrintDefaults() // then what are you doing run this executable?
 		log.Panic("no operation provided")
 	}
 }
