@@ -110,7 +110,13 @@ func (lxc *LexiconMySQL) Add(words ...string) error {
 		return errNilOrEmptyWords
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s VALUES ", tableName)
+	var query string
+	if lxc.driver == "mysql" {
+		query = fmt.Sprintf("INSERT IGNORE INTO %s VALUES ", tableName)
+	} else { // libsql
+		query = fmt.Sprintf("INSERT OR IGNORE INTO %s VALUES ", tableName)
+	}
+
 	vals := []interface{}{}
 	for _, w := range words {
 		query += "(?), "

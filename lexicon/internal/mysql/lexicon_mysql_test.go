@@ -194,9 +194,7 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{
-					db: db,
-				}
+				lxc := &LexiconMySQL{db, dbName}
 				got, err := lxc.Lookup(tt.args.words...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("[%s] LexiconWithDB.Lookup() error = %v, wantErr %v", dbName, err, tt.wantErr)
@@ -285,9 +283,7 @@ func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{
-					db: db,
-				}
+				lxc := &LexiconMySQL{db, dbName}
 				got, err := lxc.GetAllWordsStartingWith(tt.args.substrings...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.GetAllWordsStartingWith() error = %v, wantErr %v", err, tt.wantErr)
@@ -374,9 +370,7 @@ func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{
-					db: db,
-				}
+				lxc := &LexiconMySQL{db, dbName}
 				got, err := lxc.GetAllWordsEndingWith(tt.args.substrings...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.GetAllWordsEndingWith() error = %v, wantErr %v", err, tt.wantErr)
@@ -429,10 +423,10 @@ func TestLexiconWithDB_Add(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "Given a Lexicon with some words, when Lookup is invoked multiple words some exists and others don't, then return value should be true only for existing words",
+			name:    "Given a Lexicon with some words, when Add is invoked on existing word, then error should be suppressed",
 			fields:  fields{mysqlDB, libsqlDB},
 			args:    args{words: []string{"नमस्कार"}},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "Given a Lexicon with some words, when Add is invoked for nil words array, then error is expected",
@@ -451,9 +445,7 @@ func TestLexiconWithDB_Add(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{
-					db: db,
-				}
+				lxc := &LexiconMySQL{db, dbName}
 				if err := lxc.Add(tt.args.words...); (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.Add() error = %v, wantErr %v", err, tt.wantErr)
 				}
