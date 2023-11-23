@@ -1,7 +1,7 @@
 # cool-lexicon
 
 The Lexicon project is a Golang application designed to create and manage a lexicon of Devnagri words.
-Current version of the project relies upon MySQL to store all the words because -- simplicity.
+Current version of the project relies upon MySQL or LibSQL to store all the words because -- simplicity.
 
 
 

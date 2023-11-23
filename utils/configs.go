@@ -13,7 +13,7 @@ import (
 // A zero value config is useless and will be reported invalid during validation phase.
 type Configs struct {
 
-	// Dbtype mentions type of DB server used. Optional as currently only MySQL is supported.
+	// Dbtype mentions type of DB server used.
 	Dbtype string `json:"type"`
 
 	// Host address of the database
@@ -44,20 +44,24 @@ func ReadConfigs(filePath string) *Configs {
 	}
 
 	// validate
+	if len(cfg.Dbtype) == 0 {
+		log.Panic("database type is invalid")
+	}
+
 	if len(cfg.Username) == 0 {
-		log.Panic("mysql username is invalid")
+		log.Panic("username is invalid")
 	}
 
 	if len(cfg.Password) == 0 {
-		log.Panic("mysql password is invalid")
+		log.Panic("password is invalid")
 	}
 
 	if len(cfg.Host) == 0 {
-		log.Panic("mysql host is invalid")
+		log.Panic("host is invalid")
 	}
 
 	if len(cfg.Database) == 0 {
-		log.Panic("mysql database is invalid")
+		log.Panic("database is invalid")
 	}
 
 	return &cfg

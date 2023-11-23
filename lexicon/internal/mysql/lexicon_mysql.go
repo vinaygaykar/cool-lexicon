@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
@@ -18,17 +16,18 @@ var (
 )
 
 // Open returns an instance of LexiconMySQL
-func Open(db *sql.DB) *LexiconMySQL {
+func Open(db *sql.DB, driver string) *LexiconMySQL {
 	if db == nil {
 		log.Panicln("database value is nil")
 	}
 
-	return &LexiconMySQL{db: db}
+	return &LexiconMySQL{db, driver}
 }
 
 // LexiconMySQL provides implementation of lexicon/pkg/Lexicon with MySQL as backend.
 type LexiconMySQL struct {
-	db *sql.DB
+	db     *sql.DB
+	driver string
 }
 
 func (lxc *LexiconMySQL) Lookup(words ...string) (*[]string, error) {
@@ -111,7 +110,13 @@ func (lxc *LexiconMySQL) Add(words ...string) error {
 		return errNilOrEmptyWords
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s VALUES ", tableName)
+	var query string
+	if lxc.driver == "mysql" {
+		query = fmt.Sprintf("INSERT IGNORE INTO %s VALUES ", tableName)
+	} else { // libsql
+		query = fmt.Sprintf("INSERT OR IGNORE INTO %s VALUES ", tableName)
+	}
+
 	vals := []interface{}{}
 	for _, w := range words {
 		query += "(?), "

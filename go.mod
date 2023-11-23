@@ -1,10 +1,19 @@
 module github.com/vinaygaykar/cool-lexicon
 
-go 1.20
+go 1.21
+
+toolchain go1.21.2
 
 require (
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/libsql/libsql-client-go v0.0.0-20231116123136-ff4e46c3d3a1
 	github.com/testcontainers/testcontainers-go v0.26.0
+)
+
+require (
+	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9 // indirect
+	github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 // indirect
+	nhooyr.io/websocket v1.8.7 // indirect
 )
 
 require (
