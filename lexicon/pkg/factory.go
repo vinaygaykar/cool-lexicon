@@ -29,16 +29,14 @@ func VerifyDB(cfg *configs.Configs) {
 		)
 	} else if cfg.Dbtype == "libsql" {
 		if db, err := sql.Open("libsql", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)); err != nil {
-			log.Panicf("failure during migrations [libsql] : could not connect to server : %s\n", err.Error())
+			log.Panicf("[migrations] [libsql] : could not connect to server : %s\n", err.Error())
 		} else {
 			if driver, err := sqlite3.WithInstance(db, &sqlite3.Config{}); err != nil {
-				log.Panicf("failure during migrations [libsql] : could not create driver : %s\n", err.Error())
+				log.Panicf("[migrations] [libsql] : could not create driver : %s\n", err.Error())
 			} else {
-				m, err = migrate.NewWithDatabaseInstance(
-					"file://db/migrations/libsql",
-					"sqlite3",
-					driver,
-				)
+				if m, err = migrate.NewWithDatabaseInstance("file://db/migrations/libsql", "sqlite3", driver); err != nil {
+					log.Panicf("[migrations] [libsql] : %s\n", err.Error())
+				}
 			}
 		}
 	} else {
@@ -46,7 +44,7 @@ func VerifyDB(cfg *configs.Configs) {
 	}
 
 	if err != nil {
-		log.Panicf("failure during migrations [%s] : %s\n", cfg.Dbtype, err.Error())
+		log.Panicf("[migrations] [%s] : %s\n", cfg.Dbtype, err.Error())
 	} else {
 		m.Up()
 	}
@@ -80,51 +78,6 @@ func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.Le
 		log.Panicln(err.Error())
 	}
 
-	log.Printf("Connected to %s @ %s:%d\n", cfg.Dbtype, cfg.Host, cfg.Port)
+	log.Printf("connected to %s @ %s:%d\n", cfg.Dbtype, cfg.Host, cfg.Port)
 	return lexicon.Open(db, driver)
-}
-
-func performSetupChecksMySQL(url, database string) {
-	log.Printf("Connecting to mysql")
-	db, err := sql.Open("mysql", url)
-	if err != nil {
-		log.Panicln(err.Error())
-	}
-	defer db.Close()
-
-	log.Printf("Creating database %s if it does not already exists\n", database)
-	if _, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", database)); err != nil {
-		log.Panicln(err.Error())
-	}
-	db.Close()
-
-	log.Printf("Connected to mysql")
-	db, err = sql.Open("mysql", url+"/"+database)
-	if err != nil {
-		log.Panicln(err.Error())
-	}
-	defer db.Close()
-
-	log.Println("Creating table lexicon if it does not already exists")
-	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS lexicon(word VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (word))"); err != nil {
-		log.Panicln(err.Error())
-	}
-
-	log.Println("All checks completed")
-}
-
-func performSetupChecksLibSQL(url string) {
-	log.Printf("Connecting to libsql")
-	db, err := sql.Open("libsql", url)
-	if err != nil {
-		log.Panicln(err.Error())
-	}
-	defer db.Close()
-
-	log.Println("Creating table lexicon if it does not already exists")
-	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS lexicon(word VARCHAR(100) COLLATE NOCASE, PRIMARY KEY (word))"); err != nil {
-		log.Panicln(err.Error())
-	}
-
-	log.Println("All checks completed")
 }
