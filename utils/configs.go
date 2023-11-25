@@ -48,20 +48,8 @@ func ReadConfigs(filePath string) *Configs {
 		log.Panic("database type is invalid")
 	}
 
-	if len(cfg.Username) == 0 {
-		log.Panic("username is invalid")
-	}
-
-	if len(cfg.Password) == 0 {
-		log.Panic("password is invalid")
-	}
-
 	if len(cfg.Host) == 0 {
 		log.Panic("host is invalid")
-	}
-
-	if len(cfg.Database) == 0 {
-		log.Panic("database is invalid")
 	}
 
 	return &cfg
