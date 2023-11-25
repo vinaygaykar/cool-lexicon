@@ -129,7 +129,7 @@ To get started with the Lexicon project, follow these steps:
 - Install the required dependencies
   `go get`
 
-- Set up the MySQL database server, make sure you have MySQL installed and running (Using docker will be less hassle)
+- Set up the MySQL or libSQL database server, make sure it is running (docker is recommended but bare installation also works)
 
 - Configure the database connection in the `config.json` file, make sure the file is present at root level of the project
 
@@ -142,7 +142,7 @@ To get started with the Lexicon project, follow these steps:
 To create and run a binary:
 
 - Run `go build -o lxc ./cmd/main.go`, this will create a executable named `lxc` depending upon your os & arch.
-- Make sure MySQL is running
+- Make sure database server is running
 - Make sure the config file `config.json` is present at same level as that of the executable and has valid & working db connection values
 - Execute the binary, check [User Scenarios Supported](https://github.com/vinaygaykar/cool-lexicon/edit/tech/docs/README.md#user-scenarios-supported) for supported operations
 
@@ -163,6 +163,8 @@ To create and run a binary:
 ## Contributing
 
 If you'd like to contribute to the Lexicon project, please open an issue or submit a pull request. We welcome any improvements or feature enhancements.
-License
+
+
+## License
 
 This project is licensed under the Apache 2.0 License.
