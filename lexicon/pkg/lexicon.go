@@ -12,11 +12,13 @@ type Lexicon interface {
 	Lookup(words ...string) (*[]string, error)
 
 	// GetAllWordsStartingWith will search given 'substrings' strings and return an array of all the words that start with the string.
+	// Words are returned in lexicographical order (case insensitive).
 	// Return value is a map where key is the 'substrings' string and value is array of matching words.
 	// If any error occurs then it is returned; nil or empty words will return error.
 	GetAllWordsStartingWith(substrings ...string) (*map[string][]string, error)
 
 	// GetAllWordsEndingWith will search given 'substrings' strings and return an array of all the words that end with the string.
+	// Words are returned in lexicographical order (case insensitive).
 	// Return value is a map where key is the 'substrings' string and value is array of matching words.
 	// If any error occurs then it is returned; nil or empty words will return error.
 	GetAllWordsEndingWith(substrings ...string) (*map[string][]string, error)
