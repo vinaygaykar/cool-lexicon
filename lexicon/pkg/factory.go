@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/mysql"
+	"github.com/vinaygaykar/cool-lexicon/lexicon/internal/sql"
 	"github.com/vinaygaykar/cool-lexicon/utils"
 
 	"database/sql"
@@ -19,6 +19,9 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+// VerifyDB verifies connection to the provided database and performs required migrations.
+// Works for MySQL & libSQL.
+// If DB connection or migration fails then the function will panic.
 func VerifyDB(cfg *configs.Configs) {
 	var m *migrate.Migrate
 	var err error
@@ -50,13 +53,10 @@ func VerifyDB(cfg *configs.Configs) {
 	}
 }
 
-// GetInstance returns an instance of Lexicon object configured using properties as described in configFileLoc.
-// If configs are nil or invalid then this function will panic. If internal systme connection fails function will panic.
-// If shouldPerformSetupCheck is true then system checks are performed to make sure everything is setup as expected.
-// If system is setup is incorrectly then it will "try" to correct the setup or end up panicking. This field
-// is useful during troubleshooting and should only be set once during first run, on later runs if this value
-// is set it won't cause any harm but might slow down the operations.
-func GetInstance(shouldPerformSetupCheck bool, cfg *configs.Configs) *lexicon.LexiconMySQL {
+// GetInstance returns an instance of Lexicon object configured as per the configs.
+// If configs are nil or invalid then this function will panic. 
+// If internal system connection fails then the function will panic.
+func GetInstance(cfg *configs.Configs) *lexicon.LexiconSQL {
 	if cfg == nil {
 		log.Panic("config is nil")
 	}

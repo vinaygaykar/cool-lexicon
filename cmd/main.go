@@ -69,7 +69,7 @@ func main() {
 		lexicon.VerifyDB(cfg)
 	}
 
-	lxc := lexicon.GetInstance(args.shouldPerformSetupChecks, cfg)
+	lxc := lexicon.GetInstance(cfg)
 	defer lxc.Close()
 
 	tryOperateLookup(lxc)

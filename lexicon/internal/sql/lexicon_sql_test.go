@@ -12,6 +12,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/libsql/libsql-client-go/libsql"
 )
@@ -194,7 +195,7 @@ func TestLexiconWithDB_Lookup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{db, dbName}
+				lxc := &LexiconSQL{db, dbName}
 				got, err := lxc.Lookup(tt.args.words...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("[%s] LexiconWithDB.Lookup() error = %v, wantErr %v", dbName, err, tt.wantErr)
@@ -283,7 +284,7 @@ func TestLexiconWithDB_GetAllWordsStartingWith(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{db, dbName}
+				lxc := &LexiconSQL{db, dbName}
 				got, err := lxc.GetAllWordsStartingWith(tt.args.substrings...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.GetAllWordsStartingWith() error = %v, wantErr %v", err, tt.wantErr)
@@ -370,7 +371,7 @@ func TestLexiconWithDB_GetAllWordsEndingWith(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{db, dbName}
+				lxc := &LexiconSQL{db, dbName}
 				got, err := lxc.GetAllWordsEndingWith(tt.args.substrings...)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.GetAllWordsEndingWith() error = %v, wantErr %v", err, tt.wantErr)
@@ -445,7 +446,7 @@ func TestLexiconWithDB_Add(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			test := func(db *sql.DB, dbName string) {
-				lxc := &LexiconMySQL{db, dbName}
+				lxc := &LexiconSQL{db, dbName}
 				if err := lxc.Add(tt.args.words...); (err != nil) != tt.wantErr {
 					t.Errorf("LexiconWithDB.Add() error = %v, wantErr %v", err, tt.wantErr)
 				}
