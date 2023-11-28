@@ -16,20 +16,23 @@ type Configs struct {
 	// Dbtype mentions type of DB server used.
 	Dbtype string `json:"type"`
 
-	// Host address of the database
+	// Host address of the database server.
 	Host string `json:"host"`
 
-	// Username credentials to use for database login
-	Username string `json:"username"`
-
-	// Password credentials to use for database login
-	Password string `json:"password"`
-
-	// Port value of the database connection
+	// Port value of the database server.
 	Port int `json:"port"`
 
-	// Database to connect to
+	// Database name.
 	Database string `json:"database"`
+
+	// Username credentials to use for database login. Not needed if authToken is configured.
+	Username string `json:"username"`
+
+	// Password credentials to use for database login. Not needed if authToken is configured.
+	Password string `json:"password"`
+
+	// Authentication token. Not needed if username/password is configured.
+	AuthToken string `json:"authToken"`
 }
 
 func ReadConfigs(filePath string) *Configs {
@@ -44,10 +47,6 @@ func ReadConfigs(filePath string) *Configs {
 	}
 
 	// validate
-	if len(cfg.Dbtype) == 0 {
-		log.Panic("database type is invalid")
-	}
-
 	if len(cfg.Host) == 0 {
 		log.Panic("host is invalid")
 	}

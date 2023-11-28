@@ -23,22 +23,20 @@ import (
 // Works for MySQL & libSQL.
 // If DB connection or migration fails then the function will panic.
 func VerifyDB(cfg *configs.Configs) {
+	dbUrl, _ := getDBUrlAndDriver(cfg)
 	var m *migrate.Migrate
 	var err error
 	if cfg.Dbtype == "mysql" {
-		m, err = migrate.New(
-			"file://db/migrations/mysql",
-			fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database),
-		)
-	} else if cfg.Dbtype == "libsql" {
-		if db, err := sql.Open("libsql", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)); err != nil {
-			log.Panicf("[migrations] [libsql] : could not connect to server : %s\n", err.Error())
+		m, err = migrate.New("file://db/migrations/mysql", dbUrl)
+	} else if cfg.Dbtype == "libsql" || cfg.Dbtype == "turso" {
+		if db, err := sql.Open("libsql", dbUrl); err != nil {
+			log.Panicf("[migrations] [%s] : could not connect to server : %s\n", cfg.Dbtype, err.Error())
 		} else {
 			if driver, err := sqlite3.WithInstance(db, &sqlite3.Config{}); err != nil {
-				log.Panicf("[migrations] [libsql] : could not create driver : %s\n", err.Error())
+				log.Panicf("[migrations] [%s] : could not create driver : %s\n", cfg.Dbtype, err.Error())
 			} else {
 				if m, err = migrate.NewWithDatabaseInstance("file://db/migrations/libsql", "sqlite3", driver); err != nil {
-					log.Panicf("[migrations] [libsql] : %s\n", err.Error())
+					log.Panicf("[migrations] [%s] : %s\n", cfg.Dbtype, err.Error())
 				}
 			}
 		}
@@ -61,23 +59,29 @@ func GetInstance(cfg *configs.Configs) *lexicon.LexiconSQL {
 		log.Panic("config is nil")
 	}
 
-	var driver string
-	var url string
-	if cfg.Dbtype == "libsql" {
-		driver = cfg.Dbtype
-		url = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
-	} else if cfg.Dbtype == "mysql" {
-		driver = cfg.Dbtype
-		url = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
-	} else {
-		log.Panicln("invalid db type provided in the configs")
-	}
-
-	db, err := sql.Open(driver, url)
+	dbUrl, driver := getDBUrlAndDriver(cfg)
+	db, err := sql.Open(driver, dbUrl)
 	if err != nil {
 		log.Panicln(err.Error())
 	}
 
 	log.Printf("connected to %s @ %s:%d\n", cfg.Dbtype, cfg.Host, cfg.Port)
 	return lexicon.Open(db, driver)
+}
+
+func getDBUrlAndDriver(cfg *configs.Configs) (dbUrl, driver string) {
+	if cfg.Dbtype == "libsql" {
+		driver = cfg.Dbtype
+		dbUrl = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	} else if cfg.Dbtype == "turso" {
+		driver = "libsql"
+		dbUrl = fmt.Sprintf("%s?authToken=%s", cfg.Host, cfg.AuthToken)
+	} else if cfg.Dbtype == "mysql" {
+		driver = cfg.Dbtype
+		dbUrl = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+	} else {
+		log.Panicln("invalid db type provided in the configs")
+	}
+
+	return dbUrl, driver
 }
